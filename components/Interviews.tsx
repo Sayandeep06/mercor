@@ -31,6 +31,7 @@ const Interviews = () => {
       }
     } catch (err) {
       setError("Failed to fetch interview details. Please try again later.");
+      console.log(err)
       setInterviews([]);
     } finally {
       setLoading(false);

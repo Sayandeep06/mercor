@@ -136,6 +136,18 @@ exports.Prisma.InterviewScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.FeedbackScalarFieldEnum = {
+  id: 'id',
+  interviewId: 'interviewId',
+  score: 'score',
+  strengths: 'strengths',
+  weaknesses: 'weaknesses',
+  comments: 'comments',
+  areasToImprove: 'areasToImprove',
+  userId: 'userId',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -151,7 +163,8 @@ exports.Provider = exports.$Enums.Provider = {
 
 exports.Prisma.ModelName = {
   User: 'User',
-  Interview: 'Interview'
+  Interview: 'Interview',
+  Feedback: 'Feedback'
 };
 
 /**

@@ -2,9 +2,6 @@ import { prisma } from "@/lib/db"
 import { NextRequest,NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 
-interface RouteParams {
-    id: string; 
-}
   
 
 export async function GET(

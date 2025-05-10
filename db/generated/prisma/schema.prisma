@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "../generated/prisma"
@@ -19,19 +13,35 @@ model User {
   email      String      @unique
   provider   Provider
   interviews Interview[]
+  feedback   Feedback[]
 }
 
 model Interview {
-  id              String   @id @default(uuid())
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id              String    @id @default(uuid())
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId          String
   jobRole         String
   experienceLevel String
   skills          String[]
   questions       String[]
-  createdAt       DateTime @default(now())
+  createdAt       DateTime  @default(now())
+  feedback        Feedback?
 }
 
 enum Provider {
   Google
+}
+
+model Feedback {
+  id             String    @id @default(uuid())
+  interview      Interview @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+  interviewId    String    @unique
+  score          Int
+  strengths      String[]
+  weaknesses     String[]
+  comments       String
+  areasToImprove String[]
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         String
+  createdAt      DateTime  @default(now())
 }

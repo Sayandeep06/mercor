@@ -1,14 +1,13 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import axios from "axios";
 import { vapi } from "@/lib/vapi";
 import { useSession } from "next-auth/react";
 import { CreateAssistantDTO } from "@vapi-ai/web/dist/api";
 
-
-export const interviewer: CreateAssistantDTO = {
+const interviewer: CreateAssistantDTO = {
   name: "Interviewer",
   firstMessage:
     "Hello {{username}}! Thank you for taking the time to speak with me today. I'm excited to learn more about you and your experience.",
@@ -70,8 +69,9 @@ IMPORTANT: When you have finished the entire interview and delivered your closin
   serverMessages: [],
 };
 
-const InterviewPage = ({ params }: { params: { id: string } }) => {
-  const interviewId = params.id;
+const InterviewPage = () => {
+  const params = useParams();
+  const interviewId = params.id as string;
   const session = useSession();
   const user = session.data?.user;
   const username = user?.name;
@@ -221,7 +221,7 @@ const InterviewPage = ({ params }: { params: { id: string } }) => {
           clientMessages: [],
           serverMessages: [],
           variableValues: {
-            username:username,
+            username: username,
             questions: formattedQuestions,
           },
         });

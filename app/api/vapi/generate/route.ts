@@ -5,7 +5,7 @@ import {generateText} from "ai";
 import { getServerSession } from "next-auth";
 
 
-export async function POST(req: NextRequest, res: NextResponse){
+export async function POST(req: NextRequest){
    const session = await getServerSession();
 
     const user = await prisma.user.findFirst({
