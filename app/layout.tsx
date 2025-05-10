@@ -1,6 +1,9 @@
 import { Toaster } from "sonner";
 import type { Metadata } from "next";
 import { Mona_Sans } from "next/font/google";
+import { Providers } from "@/providers";
+import Navbar from "@/components/NavBar";
+import { ThemeProvider } from "@/components/theme-provider"
 
 import "./globals.css";
 
@@ -22,9 +25,19 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={`${monaSans.className} antialiased pattern`}>
-        {children}
+        <Providers>
+          <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              <Navbar/>
+              {children}
+              <Toaster />
+          </ThemeProvider>
 
-        <Toaster />
+        </Providers>
       </body>
     </html>
   );

@@ -14,7 +14,24 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User{
-  id String @id @default(uuid())
-  username String @unique
+model User {
+  id    String @id @default(uuid())
+  email String @unique
+  provider Provider
+  interviews Interview[]
+}
+
+model Interview {
+  id              String   @id @default(uuid())
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId          String
+  jobRole         String
+  experienceLevel String
+  skills          String[]
+  questions       String[]
+  createdAt       DateTime @default(now())
+}
+
+enum Provider {
+  Google
 }

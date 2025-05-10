@@ -1,58 +1,17 @@
 "use client"
-import { useState } from "react"
 import { Button } from "@/components/ui/button"
+import { signIn } from "next-auth/react"
 
-export default function SignupPage() {
-  const [name, setName] = useState<string>("")
-  const [username, setUsername] = useState<string>("")
-  const [password, setPassword] = useState<string>("")
-
-  const handleSubmit =()=>{
-    //submitting to the be
-  }
-
+export default function SigninPage() {
   return (
-    <div className="auth-layout">
-      <form onSubmit={handleSubmit} className="form max-w-md w-full space-y-6">
-        <h2 className="text-center">Sign Up</h2>
-        
-        <div>
-          <label className="label p-2">Name</label>
-          <br></br>
-          <input
-            type="text"
-            className="input w-full my-2"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-        </div>
-
-        <div>
-          <label className="label p-2">Username</label>
-          <input
-            type="text"
-            className="input w-full my-2"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-          />
-        </div>
-
-        <div>
-          <label className="label p-2">Password</label>
-          <input
-            type="password"
-            className="input w-full my-2"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-
-
-        <Button type="submit" className="btn">Sign Up</Button>
-      </form>
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-100 to-gray-300 dark:from-gray-900 dark:to-gray-800">
+      <div className="bg-white dark:bg-gray-950 shadow-xl rounded-2xl p-8 w-full max-w-md text-center border border-gray-200 dark:border-gray-800">
+        <h1 className="text-3xl font-bold mb-6 text-gray-800 dark:text-gray-100">Intervue</h1>
+        <p className="mb-6 text-gray-600 dark:text-gray-400">AI-powered Interview Assistant</p>
+        <Button type="submit" className="w-full cursor-pointer" onClick={() => signIn()}>
+          Sign Up with Google
+        </Button>
+      </div>
     </div>
   )
 }
