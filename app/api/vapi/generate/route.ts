@@ -14,7 +14,7 @@ Focus more on ${jobrole} questions.
 Return ONLY a JSON array of strings like: ["Question 1", "Question 2"].
 Do NOT add any explanation or extra text.
 Avoid special characters like / or *.
-This will be parsed using JSON.parse.`,
+Limit the total questions to 10 max.`,
     });
 
     const raw = text.trim();
@@ -24,6 +24,9 @@ This will be parsed using JSON.parse.`,
     try {
       questions = JSON.parse(raw);
       if (!Array.isArray(questions)) throw new Error("Parsed output is not an array");
+
+      // Limit to 10 questions max
+      questions = questions.slice(0, 10);
     } catch (err) {
       return Response.json(
         {
