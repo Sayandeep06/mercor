@@ -93,20 +93,27 @@ export async function POST(req: NextRequest){
              console.error("Failed during AI generateObject call:", aiError);
              return NextResponse.json({ success: false, error: "Failed to generate feedback from AI." }, { status: 500 });
         }
-
-
-        const res = await prisma.feedback.create({
-            data:{
-                interviewId: interviewId,
-                score: generatedObject.score,
-                strengths: generatedObject.strengths || [],
-                weaknesses: generatedObject.weaknesses || [],
-                comments: generatedObject.comments,
-                areasToImprove: generatedObject.areasToImprove || [],
-                userId: userId
-            }
-        })
-
+        const res = await prisma.feedback.upsert({
+          where: {
+            interviewId, 
+          },
+          update: {
+            score: generatedObject.score,
+            strengths: generatedObject.strengths || [],
+            weaknesses: generatedObject.weaknesses || [],
+            comments: generatedObject.comments,
+            areasToImprove: generatedObject.areasToImprove || [],
+          },
+          create: {
+            interviewId,
+            userId,
+            score: generatedObject.score,
+            strengths: generatedObject.strengths || [],
+            weaknesses: generatedObject.weaknesses || [],
+            comments: generatedObject.comments,
+            areasToImprove: generatedObject.areasToImprove || [],
+          }
+        });
         console.log('Feedback saved to DB:', res.id);
         return NextResponse.json({ success: true, data: res });
 
