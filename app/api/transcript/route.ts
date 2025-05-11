@@ -2,6 +2,7 @@ import {prisma} from '@/lib/db'
 import { generateObject } from "ai";
 import { google } from "@ai-sdk/google";
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from 'next-auth';
 import z from 'zod'
 
 const feedbackSchema = z.object({
@@ -119,14 +120,31 @@ export async function POST(req: NextRequest){
 }
 
 export async function GET() {
-    try {
-      const feedbacks = await prisma.feedback.findMany({
-        orderBy: { createdAt: 'desc' }
-      });
+  const session = await getServerSession();
 
-      return NextResponse.json({ success: true, data: feedbacks });
-    } catch (error) {
-      console.error('Error fetching feedbacks in GET handler:', error);
-      return NextResponse.json({ success: false, error: "Failed to fetch feedbacks." }, { status: 500 });
-    }
+  const user = await prisma.user.findFirst({
+    where: {
+      email: session?.user?.email ?? "",
+    },
+  });
+
+  if (!user) {
+    return NextResponse.json({ success: false, error: "User not found." }, { status: 404 });
+  }
+
+  try {
+    const feedbacks = await prisma.feedback.findMany({
+      where: {
+        userId: user.id,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    return NextResponse.json({ success: true, data: feedbacks });
+  } catch (error) {
+    console.error('Error fetching feedbacks in GET handler:', error);
+    return NextResponse.json({ success: false, error: "Failed to fetch feedbacks." }, { status: 500 });
+  }
 }

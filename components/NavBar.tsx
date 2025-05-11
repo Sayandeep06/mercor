@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Button } from "./ui/button";
 import { Bot } from 'lucide-react';
 import { Video } from 'lucide-react';
+import { NotepadText } from 'lucide-react';
 
 import { ModeToggle } from "./toogle-button";
 
@@ -26,17 +27,28 @@ const Navbar = () => {
           <ModeToggle />
           {isSignedIn ? (
             <>
-            <Button
-                asChild
-                variant="outline"
-                className="ml-2 border-primary/50 text-primary hover:text-white hover:bg-primary/10"
-              >
-                <Link
-                    href="/#interviews"
+              <Button
+                  asChild
+                  variant="outline"
+                  className="ml-2 border-primary/50 text-primary hover:text-white hover:bg-primary/10"
                 >
-                    <Video/>Interviews
-                </Link>
-            </Button>
+                  <Link
+                      href="/#interviews"
+                  >
+                      <Video/>Interviews
+                  </Link>
+              </Button>
+              <Button
+                  asChild
+                  variant="outline"
+                  className="ml-2 border-primary/50 text-primary hover:text-white hover:bg-primary/10"
+                >
+                  <Link
+                      href="/feedback"
+                  >
+                      <NotepadText/>Feedbacks
+                  </Link>
+              </Button>
 
               <Button
                 asChild
@@ -58,14 +70,14 @@ const Navbar = () => {
               <Button
                 variant="outline"
                 className="border-primary/50 text-primary hover:text-white hover:bg-primary/10"
-                onClick={() => signIn()}
+                onClick={() => signIn('google', { callbackUrl: '/' })}
               >
                 Sign In
               </Button>
 
               <Button
                 className="bg-primary text-primary-foreground hover:bg-primary/90"
-                onClick={() => signIn()}
+                onClick={() =>signIn('google', { callbackUrl: '/' })}
               >
                 Sign Up
               </Button>

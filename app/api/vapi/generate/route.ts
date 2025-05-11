@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
   try {
     const { text } = await generateText({
       model: google("gemini-2.0-flash-001"),
-      prompt: `Prepare 8–10 interview questions for a ${level} ${jobrole} position.
+      prompt: `Prepare 8–10 interview questions for a ${level} ${jobrole} position with a balance between both technical and behavioral.
 Use the following tech stack: ${skills}.
 Lean more toward ${jobrole}-style questions.
 Return ONLY a JSON array like ["Question 1", "Question 2", ...]. No extra text, no markdown.`,

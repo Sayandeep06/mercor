@@ -44,6 +44,7 @@ Interview Guidelines:
 Engage naturally & react appropriately:
 Listen actively to responses and acknowledge them before moving forward.
 Ask brief follow-up questions if a response is vague or requires more detail.
+Don't say you are right or you are wrong and don't proceed to answer the questions either even if it's right or wrong.
 Keep the conversation flowing smoothly while maintaining control.
 Be professional, yet warm and welcoming:
 
@@ -65,7 +66,7 @@ IMPORTANT: When you have finished the entire interview and delivered your closin
 
 - Be sure to be professional and polite.
 - Keep all your responses short and simple. Use official language, but be kind and welcoming.
-- This is a voice conversation, so keep your responses short, like in a real conversation. Don't ramble for too long.`,
+- This is a voice conversation, so keep your responses short, like in a real conversation. Don't ramble for too long.`
       },
     ],
   },
@@ -104,7 +105,7 @@ const InterviewPage = () => {
         }
 
         const interviewRes = await axios.get(`/api/interview/${interviewId}`);
-        setQuestions(interviewRes.data.questions || []);
+        setQuestions(interviewRes.data.interview.questions || []);
         console.log("Interview questions fetched for ID:", interviewId);
       } catch (error) {
         console.error("Error fetching user or interview data:", error);
@@ -142,8 +143,6 @@ const InterviewPage = () => {
   useEffect(() => {
     if (callEnded) {
       const delayAndSendTranscript = async () => {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-
         const finalTranscript = transcriptRef.current;
 
         console.log("Attempting to send transcript. Data:", {
@@ -177,7 +176,7 @@ const InterviewPage = () => {
 
       const redirectTimer = setTimeout(() => {
         router.push("/feedback");
-      }, 3000);
+      }, 5000);
 
       return () => clearTimeout(redirectTimer);
     }
@@ -210,58 +209,66 @@ const InterviewPage = () => {
 
 
     const handleMessage = (message: any) => {
-      console.log("Received VAPI message:", message);
-
+    
       if (!message || typeof message.type !== 'string') {
-           console.warn("Received invalid message object from VAPI", message);
-           return;
+        console.warn("Received invalid message object from VAPI", message);
+        return;
       }
-
+    
       if (message.type === "transcript") {
-          const { transcript, role, transcriptType } = message;
-
-          if (typeof transcript !== 'string' || typeof role !== 'string' || typeof transcriptType !== 'string') {
-               console.warn("Received invalid transcript message structure from VAPI", message);
-               return;
-          }
-
-          console.log(`VAPI Transcript - Type: ${transcriptType}, Role: ${role}, Content: "${transcript}"`);
-
-
-          if (transcriptType === "final") {
-              // This is a final transcript message - add it to display and transcript ref
-              const newMessage: TranscriptMessage = {
-                  role: role,
-                  content: transcript
+        const { transcript, role, transcriptType } = message;
+    
+        if (typeof transcript !== 'string' || typeof role !== 'string' || typeof transcriptType !== 'string') {
+          console.warn("Received invalid transcript message structure from VAPI", message);
+          return;
+        }
+    
+    
+        if (transcriptType === "final") {
+          const newMessage: TranscriptMessage = {
+            role: role,
+            content: transcript
+          };
+    
+    
+          if (role === "assistant" && transcript.includes("INTERVIEW_COMPLETE")) {
+            console.log("INTERVIEW_COMPLETE detected in assistant message. Ending call immediately.");
+            
+            const cleanedTranscript = transcript.replace("INTERVIEW_COMPLETE", "").trim();
+            if (cleanedTranscript) {
+              const cleanedMessage: TranscriptMessage = {
+                role: role,
+                content: cleanedTranscript
               };
-
-              console.log(`---> Processing FINAL transcript for display and storage: [${role}] ${transcript}`);
-
-              setDisplayMessages(prevMessages => [...prevMessages, newMessage]);
-
-
-              transcriptRef.current = [...transcriptRef.current, newMessage];
-
-              if (role === "assistant" && transcript.includes("INTERVIEW_COMPLETE")) {
-                  console.log("INTERVIEW_COMPLETE detected in assistant message. Scheduling call stop in 2s.");
-                  setTimeout(() => {
-                      if (callActive) {
-                          console.log("Stopping Vapi call initiated by INTERVIEW_COMPLETE signal.");
-                          vapi.stop();
-                      } else {
-                           console.log("Vapi call stop skipped (already inactive).");
-                      }
-                  }, 2000); 
-              }
-
-          } else if (transcriptType === "partial") {
-              console.log(`---> Received PARTIAL transcript: [${role}] ${transcript}`);
-          } else {
-               console.log(`---> Received UNKNOWN transcriptType: ${transcriptType}`, message);
+              
+              setDisplayMessages(prevMessages => [...prevMessages, cleanedMessage]);
+              transcriptRef.current = [...transcriptRef.current, cleanedMessage];
+            }
+            
+            if (callActive) {
+              console.log("Stopping Vapi call initiated by INTERVIEW_COMPLETE signal.");
+              vapi.stop();
+            }
+            
+            return;
           }
-
+    
+          setDisplayMessages(prevMessages => [...prevMessages, newMessage]);
+          transcriptRef.current = [...transcriptRef.current, newMessage];
+    
+        } else if (transcriptType === "partial") {
+          console.log(` Received PARTIAL transcript: [${role}] ${transcript}`);
+          
+          if (role === "assistant" && transcript.includes("INTERVIEW_COMPLETE")) {
+            console.log("INTERVIEW_COMPLETE detected in assistant partial message. Preparing to end call.");
+          }
+          
+        } else {
+          console.log(` Received UNKNOWN transcriptType: ${transcriptType}`, message);
+        }
+    
       } else {
-          console.log(`Received non-transcript VAPI message type: ${message.type}`, message);
+        console.log(`Received non-transcript VAPI message type: ${message.type}`, message);
       }
     };
 
@@ -305,27 +312,27 @@ const InterviewPage = () => {
         setDisplayMessages([]);
         transcriptRef.current = [];
         setCallEnded(false);
-
-
+  
         let formattedQuestions = "";
         if (questions && questions.length > 0) {
-          formattedQuestions = questions.map((q) => `- ${q}`).join("\n");
-          console.log("Questions loaded for the interview:", questions.length);
+          formattedQuestions = questions
+            .map((question, index) => `${index + 1}. ${question}`)
+            .join("\n\n");
+          console.log("Questions loaded for the interview:", formattedQuestions);
         } else {
           console.warn("No questions loaded for the interview. Proceeding without specific questions in prompt.");
         }
-
+  
         const currentUsername = username || "Candidate";
         console.log("Starting Vapi call with username:", currentUsername);
-
-
+  
         await vapi.start(interviewer, {
           variableValues: {
             username: currentUsername,
             questions: formattedQuestions,
           },
         });
-
+  
       } catch (error) {
         console.error("Failed to start Vapi call:", error);
         setConnecting(false);
@@ -336,12 +343,12 @@ const InterviewPage = () => {
   };
 
   return (
-    <div className="mt-10 min-h-screen flex flex-col py-16 font-sans antialiased bg-gray-900 text-white">
+    <div className="mt-10 min-h-screen flex flex-col py-16 font-sans antialiased text-white">
       <div className="mx-auto w-full max-w-3xl px-4">
 
         <div className="text-center mb-12">
           <h1 className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-teal-400 tracking-tight">
-            Interview<span className="text-white">AI</span>
+            Interview<span className="">AI</span>
           </h1>
           <p className="mt-4 text-lg text-gray-400 max-w-xl mx-auto leading-relaxed">
             Step into a real-time AI-powered voice interview experience designed for seamless communication.
@@ -415,7 +422,7 @@ const InterviewPage = () => {
 
             {callEnded && (
               <div className="text-center text-green-400 italic mt-6 text-lg animate-fadeIn">
-                Interview complete. Redirecting to feedback page shortly...
+                Interview complete. Generating feedback and redirecting to feedback page shortly...
               </div>
             )}
           </div>

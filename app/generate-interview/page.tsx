@@ -21,7 +21,9 @@ const GenerateInterviewPage = () => {
   const username = session?.user?.name || "Guest";
   const firstLetter = user && username ? username.trim().charAt(0).toUpperCase() : (user ? 'C' : 'G');
   const router = useRouter();
-
+  if (!session) {
+    router.push("/api/auth/signin");
+  }
   const messageContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(()=>{

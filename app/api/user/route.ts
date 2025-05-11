@@ -7,9 +7,9 @@ export async function GET(){
         const session = await getServerSession();
 
         const user = await prisma.user.findFirst({
-        where: {
-            email: session?.user?.email ?? "",
-        },
+            where: {
+                email: session?.user?.email ?? "",
+            },
         });
 
         return NextResponse.json({
