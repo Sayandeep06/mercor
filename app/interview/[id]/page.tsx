@@ -7,6 +7,11 @@ import { vapi } from "@/lib/vapi";
 import { useSession } from "next-auth/react";
 import { CreateAssistantDTO } from "@vapi-ai/web/dist/api";
 
+interface TranscriptMessage {
+  role: string;
+  content: string;
+}
+
 const interviewer: CreateAssistantDTO = {
   name: "Interviewer",
   firstMessage:
@@ -34,7 +39,6 @@ const interviewer: CreateAssistantDTO = {
         content: `You are a professional job interviewer conducting a real-time voice interview with a candidate. Your goal is to assess their qualifications, motivation, and fit for the role.
 
 Interview Guidelines:
-Follow the structured question flow:
 {{questions}}
 
 Engage naturally & react appropriately:
@@ -65,8 +69,6 @@ IMPORTANT: When you have finished the entire interview and delivered your closin
       },
     ],
   },
-  clientMessages: [],
-  serverMessages: [],
 };
 
 const InterviewPage = () => {
@@ -82,7 +84,9 @@ const InterviewPage = () => {
   const [callActive, setCallActive] = useState(false);
   const [connecting, setConnecting] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [messages, setMessages] = useState<any[]>([]);
+  const [displayMessages, setDisplayMessages] = useState<TranscriptMessage[]>([]);
+  const transcriptRef = useRef<TranscriptMessage[]>([]);
+
   const [callEnded, setCallEnded] = useState(false);
   const [questions, setQuestions] = useState<string[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
@@ -91,25 +95,40 @@ const InterviewPage = () => {
     const fetchUserAndInterview = async () => {
       try {
         const userRes = await axios.get("/api/user/");
-        setUserId(userRes.data.userId);
+        if (userRes.data && userRes.data.userId) {
+          setUserId(userRes.data.userId);
+          console.log("User ID fetched:", userRes.data.userId);
+        } else {
+          console.error("User ID not found in API response:", userRes.data);
+          setUserId(null);
+        }
 
         const interviewRes = await axios.get(`/api/interview/${interviewId}`);
         setQuestions(interviewRes.data.questions || []);
+        console.log("Interview questions fetched for ID:", interviewId);
       } catch (error) {
         console.error("Error fetching user or interview data:", error);
       }
     };
 
-    fetchUserAndInterview();
+    if (interviewId) {
+      fetchUserAndInterview();
+    }
   }, [interviewId]);
+
+  useEffect(() => {
+    if (messageContainerRef.current) {
+      messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
+    }
+  }, [displayMessages]);
 
   useEffect(() => {
     const originalError = console.error;
     console.error = function (msg, ...args) {
       if (
-        msg &&
+        typeof msg === 'string' &&
         (msg.includes("Meeting has ended") ||
-          (args[0] && args[0].toString().includes("Meeting has ended")))
+          (args[0] && typeof args[0].toString === 'function' && args[0].toString().includes("Meeting has ended")))
       ) {
         return;
       }
@@ -122,118 +141,202 @@ const InterviewPage = () => {
 
   useEffect(() => {
     if (callEnded) {
-      const sendTranscript = async () => {
+      const delayAndSendTranscript = async () => {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
+        const finalTranscript = transcriptRef.current;
+
+        console.log("Attempting to send transcript. Data:", {
+          userId,
+          interviewId,
+          transcriptLength: finalTranscript.length,
+          transcriptSample: finalTranscript.slice(0, 2)
+        });
+
+        if (!userId || !interviewId) {
+            console.error("CRITICAL: userId or interviewId is missing before sending transcript! Transcript not sent.");
+            return;
+        }
+        if (finalTranscript.length === 0) {
+            console.warn("Transcript is empty from ref. Sending an empty transcript or skipping. Check message handling.");
+        }
+
         try {
           await axios.post("/api/transcript", {
             userId,
             interviewId,
-            transcript: messages,
+            transcript: finalTranscript,
           });
+          console.log("Transcript sent successfully to /api/transcript");
         } catch (err) {
-          console.error("Failed to send transcript:", err);
+          console.error("Failed to send transcript to /api/transcript:", err);
         }
       };
 
-      sendTranscript();
+      delayAndSendTranscript();
 
       const redirectTimer = setTimeout(() => {
         router.push("/feedback");
-      }, 1500);
+      }, 3000);
+
       return () => clearTimeout(redirectTimer);
     }
-  }, [callEnded, messages, router, userId, interviewId]);
+  }, [callEnded, router, userId, interviewId]);
 
   useEffect(() => {
     const handleCallStart = () => {
+      console.log("VAPI Event: call-start");
       setConnecting(false);
       setCallActive(true);
       setCallEnded(false);
+      setDisplayMessages([]);
+      transcriptRef.current = [];
     };
 
     const handleCallEnd = () => {
+      console.log("VAPI Event: call-end");
       setCallActive(false);
       setConnecting(false);
       setIsSpeaking(false);
       setCallEnded(true);
     };
 
-    const handleSpeechStart = () => setIsSpeaking(true);
-    const handleSpeechEnd = () => setIsSpeaking(false);
+    const handleSpeechStart = () => {
+      setIsSpeaking(true);
+    };
+    const handleSpeechEnd = () => {
+      setIsSpeaking(false);
+    };
+
 
     const handleMessage = (message: any) => {
-      if (message.type === "transcript" && message.transcriptType === "final") {
-        const newMessage = { content: message.transcript, role: message.role };
-        
-        if (message.role === "assistant" && 
-            message.transcript.includes("INTERVIEW_COMPLETE")) {
+      console.log("Received VAPI message:", message);
 
-          setTimeout(() => {
-            if (callActive) {
-              vapi.stop();
-            }
-          }, 2000);
-        }
-        
-        setMessages((prev) => [...prev, newMessage]);
+      if (!message || typeof message.type !== 'string') {
+           console.warn("Received invalid message object from VAPI", message);
+           return;
+      }
+
+      if (message.type === "transcript") {
+          const { transcript, role, transcriptType } = message;
+
+          if (typeof transcript !== 'string' || typeof role !== 'string' || typeof transcriptType !== 'string') {
+               console.warn("Received invalid transcript message structure from VAPI", message);
+               return;
+          }
+
+          console.log(`VAPI Transcript - Type: ${transcriptType}, Role: ${role}, Content: "${transcript}"`);
+
+
+          if (transcriptType === "final") {
+              // This is a final transcript message - add it to display and transcript ref
+              const newMessage: TranscriptMessage = {
+                  role: role,
+                  content: transcript
+              };
+
+              console.log(`---> Processing FINAL transcript for display and storage: [${role}] ${transcript}`);
+
+              setDisplayMessages(prevMessages => [...prevMessages, newMessage]);
+
+
+              transcriptRef.current = [...transcriptRef.current, newMessage];
+
+              if (role === "assistant" && transcript.includes("INTERVIEW_COMPLETE")) {
+                  console.log("INTERVIEW_COMPLETE detected in assistant message. Scheduling call stop in 2s.");
+                  setTimeout(() => {
+                      if (callActive) {
+                          console.log("Stopping Vapi call initiated by INTERVIEW_COMPLETE signal.");
+                          vapi.stop();
+                      } else {
+                           console.log("Vapi call stop skipped (already inactive).");
+                      }
+                  }, 2000); 
+              }
+
+          } else if (transcriptType === "partial") {
+              console.log(`---> Received PARTIAL transcript: [${role}] ${transcript}`);
+          } else {
+               console.log(`---> Received UNKNOWN transcriptType: ${transcriptType}`, message);
+          }
+
+      } else {
+          console.log(`Received non-transcript VAPI message type: ${message.type}`, message);
       }
     };
 
+
     const handleError = (error: any) => {
-      console.log("Vapi Error", error);
+      console.error("VAPI Event: error", error);
       setConnecting(false);
       setCallActive(false);
+      setIsSpeaking(false);
     };
 
-    vapi
-      .on("call-start", handleCallStart)
-      .on("call-end", handleCallEnd)
-      .on("speech-start", handleSpeechStart)
-      .on("speech-end", handleSpeechEnd)
-      .on("message", handleMessage)
-      .on("error", handleError);
+    console.log("Setting up VAPI event listeners...");
+    vapi.on("call-start", handleCallStart);
+    vapi.on("call-end", handleCallEnd);
+    vapi.on("speech-start", handleSpeechStart);
+    vapi.on("speech-end", handleSpeechEnd);
+    vapi.on("message", handleMessage); 
+    vapi.on("error", handleError);
 
     return () => {
-      vapi
-        .off("call-start", handleCallStart)
-        .off("call-end", handleCallEnd)
-        .off("speech-start", handleSpeechStart)
-        .off("speech-end", handleSpeechEnd)
-        .off("message", handleMessage)
-        .off("error", handleError);
+      console.log("Cleaning up VAPI event listeners.");
+      vapi.off("call-start", handleCallStart);
+      vapi.off("call-end", handleCallEnd);
+      vapi.off("speech-start", handleSpeechStart);
+      vapi.off("speech-end", handleSpeechEnd);
+      vapi.off("message", handleMessage);
+      vapi.off("error", handleError);
+      console.log("VAPI event listeners cleaned up.");
     };
   }, [callActive]);
 
+
   const toggleCall = async () => {
     if (callActive) {
+      console.log("User initiated: Stop call");
       vapi.stop();
     } else {
+      console.log("User initiated: Start call");
       try {
         setConnecting(true);
-        setMessages([]);
+        setDisplayMessages([]);
+        transcriptRef.current = [];
         setCallEnded(false);
 
+
         let formattedQuestions = "";
-        if (questions.length > 0) {
+        if (questions && questions.length > 0) {
           formattedQuestions = questions.map((q) => `- ${q}`).join("\n");
+          console.log("Questions loaded for the interview:", questions.length);
+        } else {
+          console.warn("No questions loaded for the interview. Proceeding without specific questions in prompt.");
         }
 
+        const currentUsername = username || "Candidate";
+        console.log("Starting Vapi call with username:", currentUsername);
+
+
         await vapi.start(interviewer, {
-          clientMessages: [],
-          serverMessages: [],
           variableValues: {
-            username: username,
+            username: currentUsername,
             questions: formattedQuestions,
           },
         });
+
       } catch (error) {
-        console.log("Failed to start call", error);
+        console.error("Failed to start Vapi call:", error);
         setConnecting(false);
+        setCallActive(false);
+        setCallEnded(false);
       }
     }
   };
 
   return (
-    <div className="mt-10 min-h-screen flex flex-col py-16 font-sans antialiased">
+    <div className="mt-10 min-h-screen flex flex-col py-16 font-sans antialiased bg-gray-900 text-white">
       <div className="mx-auto w-full max-w-3xl px-4">
 
         <div className="text-center mb-12">
@@ -254,8 +357,8 @@ const InterviewPage = () => {
               </div>
               <div>
                 <div className="text-md font-semibold text-gray-200">AI Interviewer</div>
-                <div className={`text-xs ${callActive ? 'text-green-500' : 'text-gray-400'} flex items-center gap-2`}>
-                  <span className={`w-2.5 h-2.5 rounded-full ${callActive ? (isSpeaking ? 'bg-green-500 animate-pulse' : 'bg-green-500') : 'bg-gray-500'}`} />
+                <div className={`text-xs ${callActive ? 'text-green-400' : 'text-gray-400'} flex items-center gap-2`}>
+                  <span className={`w-2.5 h-2.5 rounded-full ${callActive ? (isSpeaking ? 'bg-green-400 animate-pulse' : 'bg-green-400') : 'bg-gray-500'}`} />
                   {callActive ? (isSpeaking ? "Speaking..." : "Listening...") : callEnded ? "Interview Ended" : connecting ? "Connecting..." : "Idle"}
                 </div>
               </div>
@@ -263,8 +366,8 @@ const InterviewPage = () => {
 
             <div className="flex items-center gap-4">
               <div className="text-right">
-                <div className="text-md font-semibold text-gray-200">You</div>
-                <div className="text-xs text-gray-400">{ username?.trim()? "Candidate" : "Guest"}</div>
+                <div className="text-md font-semibold text-gray-200">{username || "You"}</div>
+                <div className="text-xs text-gray-400">{ username ? "Candidate" : "Guest"}</div>
               </div>
               <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-xl shadow-lg">
                 {firstLetter}
@@ -272,16 +375,24 @@ const InterviewPage = () => {
             </div>
           </div>
 
-          <div ref={messageContainerRef} className="flex-1 overflow-y-auto p-6 space-y-5 custom-scrollbar bg-gray-850">
-            {messages.length === 0 && !callActive && !callEnded && (
-              <p className="text-gray-400 text-center italic mt-10 text-lg">
-                Ready to start? Click "Start Interview" below.
-              </p>
+          <div ref={messageContainerRef} className="flex-1 overflow-y-auto p-6 space-y-5 bg-gray-850 custom-scrollbar">
+            {displayMessages.length === 0 && !callActive && !callEnded && !connecting && (
+              <div className="text-gray-400 text-center italic mt-10 text-lg flex flex-col items-center justify-center h-full">
+                <p>Ready to start?</p>
+                <p>Click "Start Interview" below.</p>
+              </div>
+            )}
+             {displayMessages.length === 0 && connecting && (
+              <div className="text-gray-400 text-center italic mt-10 text-lg flex flex-col items-center justify-center h-full">
+                <p>Connecting to the AI Interviewer...</p>
+              </div>
             )}
 
-            {messages.map((msg, index) => {
-              const displayContent = msg.content.replace("INTERVIEW_COMPLETE", "");
-              
+            {displayMessages.map((msg, index) => {
+              const displayContent = typeof msg.content === 'string' ? msg.content.replace("INTERVIEW_COMPLETE", "").trim() : "";
+              if (displayContent === "") return null;
+
+
               return (
                 <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-slideInFromBottom`}>
                   <div className={`max-w-[80%] px-5 py-3 rounded-2xl shadow-md ${
@@ -291,9 +402,9 @@ const InterviewPage = () => {
                         ? 'bg-gray-700 text-gray-200 rounded-bl-sm'
                         : 'bg-gray-600 text-gray-300 italic text-center text-sm'
                   }`}>
-                    {msg.role !== 'system' && (
+                    {(msg.role === 'assistant' || msg.role === 'user') && (
                       <div className="text-xs font-semibold mb-1 opacity-80">
-                        {msg.role === 'assistant' ? 'AI' : 'You'}
+                        {msg.role === 'assistant' ? 'AI Interviewer' : (username || 'You')}
                       </div>
                     )}
                     <p className="text-sm whitespace-pre-wrap break-words">{displayContent}</p>
@@ -303,8 +414,8 @@ const InterviewPage = () => {
             })}
 
             {callEnded && (
-              <div className="text-center text-green-500 italic mt-6 text-lg animate-fadeIn">
-                Interview complete. View feedback or transcript below.
+              <div className="text-center text-green-400 italic mt-6 text-lg animate-fadeIn">
+                Interview complete. Redirecting to feedback page shortly...
               </div>
             )}
           </div>
@@ -316,11 +427,11 @@ const InterviewPage = () => {
               callActive
                 ? 'bg-red-600 text-white hover:bg-red-700 shadow-lg shadow-red-600/40'
                 : callEnded
-                  ? 'bg-purple-600 text-white hover:bg-purple-700 shadow-lg shadow-purple-600/40'
-                  : 'bg-green-600 text-white hover:bg-green-700 shadow-lg shadow-green-600/40'
+                  ? 'bg-purple-600 text-white hover:bg-purple-700 shadow-lg shadow-purple-600/40 cursor-not-allowed'
+                  : 'bg-green-600 text-white hover:-green-700 shadow-lg shadow-green-600/40'
             } disabled:opacity-50 disabled:cursor-not-allowed`}
             onClick={toggleCall}
-            disabled={connecting}
+            disabled={connecting || (callEnded && !callActive)}
           >
             {connecting && (
               <span className="absolute inset-0 bg-white opacity-20 animate-pulse rounded-full"></span>
@@ -331,7 +442,7 @@ const InterviewPage = () => {
                 : connecting
                   ? 'Connecting...'
                   : callEnded
-                    ? 'View Summary'
+                    ? 'Interview Ended'
                     : 'Start Interview'}
             </span>
           </button>
@@ -339,7 +450,6 @@ const InterviewPage = () => {
       </div>
     </div>
   );
-  
 };
 
 export default InterviewPage;

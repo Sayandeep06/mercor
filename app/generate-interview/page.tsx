@@ -125,8 +125,6 @@ const GenerateInterviewPage = () => {
 
 
         await vapi.start(process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID!, {
-            clientMessages: [],
-            serverMessages: [],
             variableValues: {
               username: username,
               userId: userId
