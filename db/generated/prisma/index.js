@@ -161,6 +161,14 @@ const config = {
         "fromEnvVar": null,
         "value": "darwin-arm64",
         "native": true
+      },
+      {
+        "fromEnvVar": null,
+        "value": "darwin-arm64"
+      },
+      {
+        "fromEnvVar": null,
+        "value": "rhel-openssl-3.0.x"
       }
     ],
     "previewFeatures": [],
@@ -178,16 +186,17 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
         "fromEnvVar": "DATABASE_URL",
-        "value": "postgresql://neondb_owner:npg_DvA1x3WtGbdR@ep-orange-silence-a5p2eiof-pooler.us-east-2.aws.neon.tech/mercor?sslmode=require"
+        "value": null
       }
     }
   },
-  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id         String      @id @default(uuid())\n  email      String      @unique\n  provider   Provider\n  interviews Interview[]\n  feedback   Feedback[]\n}\n\nmodel Interview {\n  id              String    @id @default(uuid())\n  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)\n  userId          String\n  jobRole         String\n  experienceLevel String\n  skills          String[]\n  questions       String[]\n  createdAt       DateTime  @default(now())\n  feedback        Feedback?\n}\n\nenum Provider {\n  Google\n}\n\nmodel Feedback {\n  id             String    @id @default(uuid())\n  interview      Interview @relation(fields: [interviewId], references: [id], onDelete: Cascade)\n  interviewId    String    @unique\n  score          Int\n  strengths      String[]\n  weaknesses     String[]\n  comments       String\n  areasToImprove String[]\n  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)\n  userId         String\n  createdAt      DateTime  @default(now())\n}\n",
-  "inlineSchemaHash": "f74d6b7f5634719299745afced81d314fb6a018e018d4e8606ff44ffe716cdf0",
+  "inlineSchema": "generator client {\n  provider      = \"prisma-client-js\"\n  output        = \"../generated/prisma\"\n  binaryTargets = [\"native\", \"darwin-arm64\", \"rhel-openssl-3.0.x\"]\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id         String      @id @default(uuid())\n  email      String      @unique\n  provider   Provider\n  interviews Interview[]\n  feedback   Feedback[]\n}\n\nmodel Interview {\n  id              String    @id @default(uuid())\n  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)\n  userId          String\n  jobRole         String\n  experienceLevel String\n  skills          String[]\n  questions       String[]\n  createdAt       DateTime  @default(now())\n  feedback        Feedback?\n}\n\nenum Provider {\n  Google\n}\n\nmodel Feedback {\n  id             String    @id @default(uuid())\n  interview      Interview @relation(fields: [interviewId], references: [id], onDelete: Cascade)\n  interviewId    String    @unique\n  score          Int\n  strengths      String[]\n  weaknesses     String[]\n  comments       String\n  areasToImprove String[]\n  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)\n  userId         String\n  createdAt      DateTime  @default(now())\n}\n",
+  "inlineSchemaHash": "f06c3cc223e64955c9d0cc2c490498a006893765155b02aeb1f2d1d4ed6e828d",
   "copyEngine": true
 }
 
@@ -228,6 +237,10 @@ Object.assign(exports, Prisma)
 // file annotations for bundling tools to include these files
 path.join(__dirname, "libquery_engine-darwin-arm64.dylib.node");
 path.join(process.cwd(), "generated/prisma/libquery_engine-darwin-arm64.dylib.node")
+
+// file annotations for bundling tools to include these files
+path.join(__dirname, "libquery_engine-rhel-openssl-3.0.x.so.node");
+path.join(process.cwd(), "generated/prisma/libquery_engine-rhel-openssl-3.0.x.so.node")
 // file annotations for bundling tools to include these files
 path.join(__dirname, "schema.prisma");
 path.join(process.cwd(), "generated/prisma/schema.prisma")
