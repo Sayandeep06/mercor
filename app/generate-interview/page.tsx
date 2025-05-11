@@ -59,7 +59,7 @@ const GenerateInterviewPage = () => {
   useEffect(() => {
     if (callEnded) {
       const redirectTimer = setTimeout(() => {
-        router.push("/profile");
+        router.push("/#interviews");
       }, 1500);
       return () => clearTimeout(redirectTimer);
     }

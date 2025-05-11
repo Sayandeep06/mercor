@@ -26,21 +26,21 @@ export async function POST(req: NextRequest) {
 
         console.log("reached checkpoint 2");
 
-        let questions: string[] = [];
+        const raw = text.trim();
+        console.log("Raw model output:", raw);
 
+        let questions: string[];
         try {
-            const rawText = text.trim();
-            questions = JSON.parse(rawText);
-
+            questions = JSON.parse(raw);
             if (!Array.isArray(questions)) {
-                throw new Error("Output is not a valid array");
+                throw new Error("Parsed output is not an array");
             }
         } catch (err) {
-            console.error("JSON parse error:", text);
             return NextResponse.json({
                 success: false,
-                error: "Failed to parse model output as JSON",
-                details: err instanceof Error ? err.message : err,
+                error: "Failed to parse model output",
+                rawOutput: raw,
+                details: err instanceof Error ? err.message : err
             });
         }
 
@@ -48,11 +48,11 @@ export async function POST(req: NextRequest) {
 
         const interview = await prisma.interview.create({
             data: {
-                userId: userId,
+                userId,
                 jobRole: jobrole,
                 experienceLevel: level,
                 skills: skills.split(",").map((s: string) => s.trim()),
-                questions: questions
+                questions
             }
         });
 
