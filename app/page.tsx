@@ -1,9 +1,11 @@
 import Interviews from '@/components/Interviews';
 import Link from 'next/link';
+import { getServerSession } from 'next-auth';
 
 import { Button } from '@/components/ui/button';
 
-const Home = () => {
+const Home =async() => {
+  const session = await getServerSession();
 
   return (
     <div className="container mx-auto px-4 ">
@@ -28,12 +30,16 @@ const Home = () => {
       </section>
 
       <section id="interviews" className="interviews py-16 md:py-24">
-        <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center">
-          Your Interviews
-        </h2>
-        <Interviews></Interviews>
+        {session?.user?.email ? (<> 
+          <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center">
+            Your Interviews
+          </h2>
+          <Interviews></Interviews>
+          </> ):(<h2 className="text-3xl md:text-4xl font-bold mb-8 text-center">
+            Sign in for Interviews
+          </h2>)
+        }
       </section>
-
     </div>
   )
 }
