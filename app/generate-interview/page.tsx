@@ -30,6 +30,7 @@ const GenerateInterviewPage = () => {
       const userId = res.data.userId;
       setUserId(userId);
     }
+    getuser();
   },[session])
 
   useEffect(() => {
