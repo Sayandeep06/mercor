@@ -1,15 +1,15 @@
-import { prisma } from "@/lib/db"
+import { prisma } from "@/lib/db";
 import { google } from '@ai-sdk/google';
 import { NextRequest, NextResponse } from "next/server";
-import {generateText} from "ai";
+import { generateText } from "ai";
 
+export async function POST(req: NextRequest) {
+    const { jobrole, level, skills, userId } = await req.json();
+    console.log("reached checkpoint 1");
 
+    try {
+        console.log("reached checkpoint try");
 
-export async function POST(req: NextRequest){
-    const {jobrole, level, skills, userId} = await req.json();
-    console.log("reached checkpoint 1")
-    try{
-        console.log("reached checkpoint try")
         const { text } = await generateText({
             model: google("gemini-2.0-flash-001"),
             prompt: `Prepare questions for a job interview.
@@ -20,19 +20,34 @@ export async function POST(req: NextRequest){
               The amount of questions required is between 8-10.
               Please return only the questions, without any additional text.
               The questions are going to be read by a voice assistant so do not use "/" or "*" or any other special characters which might break the voice assistant.
-              Return the questions formatted like this:
-              ["Question 1", "Question 2", "Question 3"]
+              Return ONLY a valid JSON array of plain text questions, like: ["Question 1", "Question 2", "Question 3"] — nothing else.
           `,
         });
 
-        console.log("reached checkpoint 2")
+        console.log("reached checkpoint 2");
 
-        const questions = JSON.parse(text);
+        let questions: string[] = [];
 
-        console.log("reached checkpoint 3")
+        try {
+            const rawText = text.trim();
+            questions = JSON.parse(rawText);
+
+            if (!Array.isArray(questions)) {
+                throw new Error("Output is not a valid array");
+            }
+        } catch (err) {
+            console.error("JSON parse error:", text);
+            return NextResponse.json({
+                success: false,
+                error: "Failed to parse model output as JSON",
+                details: err instanceof Error ? err.message : err,
+            });
+        }
+
+        console.log("reached checkpoint 3");
 
         const interview = await prisma.interview.create({
-            data:{
+            data: {
                 userId: userId,
                 jobRole: jobrole,
                 experienceLevel: level,
@@ -41,14 +56,15 @@ export async function POST(req: NextRequest){
             }
         });
 
-        console.log("reached checkpoint 4")
-        return NextResponse.json({success: true, interview})
-    }catch(e){
-        console.log(e)
+        console.log("reached checkpoint 4");
+
+        return NextResponse.json({ success: true, interview });
+    } catch (e) {
+        console.log(e);
         return NextResponse.json({
             success: false,
             error: "Something went wrong",
             details: e instanceof Error ? e.message : e
-        })
+        });
     }
 }
