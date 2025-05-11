@@ -9,29 +9,29 @@ export async function POST(req: NextRequest) {
   try {
     const { text } = await generateText({
       model: google("gemini-2.0-flash-001"),
-      prompt: `Return a list of job interview questions for a ${level} ${jobrole} position using ${skills}.
-Focus more on ${jobrole} questions.
-Return ONLY a JSON array of strings like: ["Question 1", "Question 2"].
-Do NOT add any explanation or extra text.
-Avoid special characters like / or *.
-Limit the total questions to 10 max.`,
+      prompt: `Prepare 8–10 interview questions for a ${level} ${jobrole} position.
+Use the following tech stack: ${skills}.
+Lean more toward ${jobrole}-style questions.
+Return ONLY a JSON array like ["Question 1", "Question 2", ...]. No extra text, no markdown.`,
     });
 
-    const raw = text.trim();
-    console.log("Raw model output:", raw);
+    const raw = text
+      .replace(/```json/i, "")
+      .replace(/```/, "")
+      .trim();
+
+    console.log("Cleaned output:", raw);
 
     let questions: string[];
     try {
       questions = JSON.parse(raw);
-      if (!Array.isArray(questions)) throw new Error("Parsed output is not an array");
-
-      // Limit to 10 questions max
+      if (!Array.isArray(questions)) throw new Error("Output is not an array");
       questions = questions.slice(0, 10);
     } catch (err) {
       return Response.json(
         {
           success: false,
-          error: "Failed to parse model output",
+          error: "Failed to parse questions",
           rawOutput: raw,
           details: err instanceof Error ? err.message : err,
         },
@@ -51,11 +51,11 @@ Limit the total questions to 10 max.`,
 
     return Response.json({ success: true, interview }, { status: 200 });
   } catch (e) {
-    console.error("Error in handler:", e);
+    console.error("Error in interview creation:", e);
     return Response.json(
       {
         success: false,
-        error: "Something went wrong",
+        error: "Internal server error",
         details: e instanceof Error ? e.message : e,
       },
       { status: 500 }
