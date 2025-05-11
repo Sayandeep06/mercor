@@ -2,22 +2,11 @@ import { prisma } from "@/lib/db"
 import { google } from '@ai-sdk/google';
 import { NextRequest, NextResponse } from "next/server";
 import {generateText} from "ai";
-import { getServerSession } from "next-auth";
+
 
 
 export async function POST(req: NextRequest){
-   const session = await getServerSession();
-
-    const user = await prisma.user.findFirst({
-      where: {
-        email: session?.user?.email ?? "",
-      },
-    });
-  
-    if (!user) {
-      return NextResponse.json({ message: "Unauthenticated" }, { status: 403 });
-    } 
-    const {jobrole, level, skills} = await req.json();
+    const {jobrole, level, skills, userId} = await req.json();
     console.log("reached checkpoint 1")
     try{
         console.log("reached checkpoint try")
@@ -44,7 +33,7 @@ export async function POST(req: NextRequest){
 
         const interview = await prisma.interview.create({
             data:{
-                userId: user.id,
+                userId: userId,
                 jobRole: jobrole,
                 experienceLevel: level,
                 skills: skills.split(",").map((s: string) => s.trim()),

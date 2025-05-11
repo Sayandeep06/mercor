@@ -6,12 +6,14 @@ import { vapi } from "@/lib/vapi";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import axios from "axios";
 
 const GenerateInterviewPage = () => {
   const [callActive, setCallActive] = useState(false);
   const [connecting, setConnecting] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [messages, setMessages] = useState<any[]>([]);
+  const [userId, setUserId] = useState("")
   const [callEnded, setCallEnded] = useState(false);
 
   const { data: session } = useSession();
@@ -21,6 +23,14 @@ const GenerateInterviewPage = () => {
   const router = useRouter();
 
   const messageContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(()=>{
+    const getuser = async()=>{
+      const res = await axios.get('/api/user');
+      const userId = res.data.userId;
+      setUserId(userId);
+    }
+  },[session])
 
   useEffect(() => {
     const originalError = console.error;
@@ -117,7 +127,8 @@ const GenerateInterviewPage = () => {
             clientMessages: [],
             serverMessages: [],
             variableValues: {
-              username: username
+              username: username,
+              userId: userId
             }
         });
       } catch (error) {
