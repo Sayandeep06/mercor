@@ -1,6 +1,4 @@
 
-
-
 # Intervue AI
 
 Intervue AI is a real-time AI-powered interview platform built with **Next.js**, **Vapi**, **Vercel AI SDK**, and integrated with multiple AI services including OpenAI, Google Generative AI, AssemblyAI, Deepgram, and ElevenLabs.
@@ -31,8 +29,8 @@ It simulates an AI interviewer that talks to users in real-time and generates in
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/intervue-ai.git
-cd intervue-ai
+git clone https://github.com/Sayandeep06/mercor
+cd mercor
 ```
 
 
