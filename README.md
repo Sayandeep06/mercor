@@ -1,36 +1,106 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
 
-First, run the development server:
+
+# Intervue AI
+
+Intervue AI is a real-time AI-powered interview platform built with **Next.js**, **Vapi**, **Vercel AI SDK**, and integrated with multiple AI services including OpenAI, Google Generative AI, AssemblyAI, Deepgram, and ElevenLabs.
+
+It simulates an AI interviewer that talks to users in real-time and generates insights and transcripts from the conversation.
+
+## 🧠 Features
+
+- Real-time AI interviewer powered by [Vapi](https://www.vapi.ai)
+- Uses multiple AI APIs: OpenAI, Google Gemini, Deepgram, ElevenLabs
+- Transcription and voice synthesis
+- Google authentication with NextAuth
+- Full-stack application using PostgreSQL (Neon)
+
+---
+
+## 🛠 Tech Stack
+
+- **Frontend:** Next.js, Tailwind CSS, Vercel AI SDK
+- **Backend:** Node.js, PostgreSQL (Neon DB), Vapi, AI APIs
+- **Auth:** NextAuth with Google Provider
+- **Hosting:** Vercel
+
+---
+
+## 🔧 Setup Instructions
+
+### 1. Clone the Repository
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/your-username/intervue-ai.git
+cd intervue-ai
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+**2\. Install Dependencies**
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+npm install
+```
 
-## Learn More
+### **3\. Setup Environment Variables**
 
-To learn more about Next.js, take a look at the following resources:
+Create a .env file in the root of the project and add the following variables. Refer to .env.example for structure down below.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### **4\. Set Up a Vapi Workflow** 
+![vapi workflow](public/vapi.jpeg)
 
-## Deploy on Vercel
+-  This is to collect data before creating the interview 
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+-   Go to [Vapi.ai](https://www.vapi.ai)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+-   Create a new **workflow** that defines your create interview logic
+
+-   Copy the **workflow ID** and paste it into NEXT_PUBLIC_VAPI_WORKFLOW_ID
+
+* * * * *
+
+**🧪 Development**
+------------------
+
+```
+npm run dev
+```
+
+* * * * *
+
+
+**📄 Environment variables**
+--------------
+
+
+```env
+# PostgreSQL Database URL
+DATABASE_URL="postgresql://<username>:<password>@<host>/<db_name>?sslmode=require"
+
+# Google OAuth
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+
+# NextAuth Secret
+NEXTAUTH_SECRET=your_nextauth_secret
+
+# Google Generative AI
+GOOGLE_GENERATIVE_AI_API_KEY=your_google_gen_ai_key
+
+# Vapi Integration
+NEXT_PUBLIC_VAPI_WORKFLOW_ID=your_vapi_workflow_id
+NEXT_PUBLIC_VAPI_API_KEY=your_vapi_api_key
+
+# ElevenLabs API
+ELEVEN_API_KEY=your_elevenlabs_api_key
+
+# OpenAI API
+OPENAI_API_KEY=your_openai_api_key
+
+
+# Deepgram API
+DEEPGRAM_API_KEY=your_deepgram_api_key
+```
+
+* * * * *
