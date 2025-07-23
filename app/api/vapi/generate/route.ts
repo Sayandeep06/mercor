@@ -9,12 +9,13 @@ export async function POST(req: NextRequest) {
   const session = await getServerSession();
 
   const user = await prisma.user.findFirst({
-      where: {
-          email: session?.user?.email ?? "",
-      },
+    where: {
+      email: session?.user?.email ?? "",
+    },
   });
 
   const userId = user?.id;
+
   try {
     const { text } = await generateText({
       model: google("gemini-2.0-flash-001"),
@@ -47,18 +48,20 @@ Return ONLY a JSON array like ["Question 1", "Question 2", ...]. No extra text, 
         { status: 500 }
       );
     }
-
-    const interview = await prisma.interview.create({
-      data: {
-        userId,
-        jobRole: jobrole,
-        experienceLevel: level,
-        skills: skills.split(",").map((s: string) => s.trim()),
-        questions,
-      },
-    });
-
-    return Response.json({ success: true, interview }, { status: 200 });
+    if(userId){
+      const interview = await prisma.interview.create({
+        data: {
+          userId,
+          jobRole: jobrole,
+          experienceLevel: level,
+          skills: skills.split(",").map((s: string) => s.trim()),
+          questions,
+        },
+      });
+      return Response.json({ success: true, interview }, { status: 200 });
+    }else{
+      return Response.json({ success: false}, { status: 400 });
+    }
   } catch (e) {
     console.error("Error in interview creation:", e);
     return Response.json(
