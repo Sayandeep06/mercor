@@ -2,10 +2,19 @@ import { prisma } from "@/lib/db";
 import { google } from "@ai-sdk/google";
 import { generateText } from "ai";
 import { NextRequest } from "next/server";
+import { getServerSession } from "next-auth";
 
 export async function POST(req: NextRequest) {
-  const { jobrole, level, skills, userId } = await req.json();
+  const { jobrole, level, skills} = await req.json();
+  const session = await getServerSession();
 
+  const user = await prisma.user.findFirst({
+      where: {
+          email: session?.user?.email ?? "",
+      },
+  });
+
+  const userId = user?.id;
   try {
     const { text } = await generateText({
       model: google("gemini-2.0-flash-001"),
