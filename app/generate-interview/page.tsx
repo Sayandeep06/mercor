@@ -23,10 +23,6 @@ const GenerateInterviewPage = () => {
     }
   }, [session, router]);
 
-  if (status === "loading") {
-    return null;
-  }
-
   useEffect(() => {
     if (created) {
       const redirectTimer = setTimeout(() => {
@@ -35,6 +31,10 @@ const GenerateInterviewPage = () => {
       return () => clearTimeout(redirectTimer);
     }
   }, [created, router]);
+
+  if (status === "loading") {
+    return null;
+  }
 
   const createInterview = async () => {
     if (!jobRole.trim() || !level || !skills.trim()) {
