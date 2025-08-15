@@ -1,20 +1,26 @@
 import { Toaster } from "sonner";
 import type { Metadata } from "next";
-import { Mona_Sans } from "next/font/google";
+import { Inter } from "next/font/google";
 import { Providers } from "@/providers";
 import Navbar from "@/components/NavBar";
+import Footer from "@/components/Footer";
 import { ThemeProvider } from "@/components/theme-provider"
 
 import "./globals.css";
 
-const monaSans = Mona_Sans({
-  variable: "--font-mona-sans",
+const inter = Inter({
   subsets: ["latin"],
+  variable: "--font-inter",
 });
 
 export const metadata: Metadata = {
-  title: "Intervue Ai",
-  description: "Talk to your AI Interviewer",
+  title: "InterVue - AI-Powered Interview Platform",
+  description: "AI-powered interview platform with intelligent question generation, real-time candidate analysis, and actionable hiring insights.",
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon-16x16.png',
+    apple: '/apple-touch-icon.png',
+  },
 };
 
 export default function RootLayout({
@@ -24,7 +30,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body className={`${monaSans.className} antialiased pattern`}>
+      <body className={`${inter.variable} font-sans antialiased pattern`}>
         <Providers>
           <ThemeProvider
               attribute="class"
@@ -33,7 +39,10 @@ export default function RootLayout({
               disableTransitionOnChange
             >
               <Navbar/>
-              {children}
+              <main className="min-h-screen">
+                {children}
+              </main>
+              <Footer/>
               <Toaster />
           </ThemeProvider>
 

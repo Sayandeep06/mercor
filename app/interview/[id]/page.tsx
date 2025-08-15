@@ -343,117 +343,196 @@ const InterviewPage = () => {
   };
 
   return (
-    <div className="mt-10 min-h-screen flex flex-col py-16 font-sans antialiased text-white">
-      <div className="mx-auto w-full max-w-3xl px-4">
+    <div className="relative min-h-screen overflow-hidden pt-20">
+      {/* Background Elements */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5"></div>
+      <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
+      <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-accent/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+      
+      <div className="relative container mx-auto px-6 py-12 max-w-5xl">
 
+        {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-teal-400 tracking-tight">
-            Interview<span className="">AI</span>
+          <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-full px-4 py-2 text-sm font-medium text-primary mb-6">
+            <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+            Live Interview Session
+          </div>
+          
+          <h1 className="text-5xl md:text-6xl font-bold mb-6">
+            <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              AI Interview
+            </span>
+            <br />
+            <span className="text-foreground">Experience</span>
           </h1>
-          <p className="mt-4 text-lg text-gray-400 max-w-xl mx-auto leading-relaxed">
-            Step into a real-time AI-powered voice interview experience designed for seamless communication.
+          
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            Engage in a natural conversation with our AI interviewer. 
+            Speak clearly and confidently - this is your time to shine.
           </p>
         </div>
 
-        <div className="bg-gray-800 rounded-2xl shadow-2xl border border-gray-700 overflow-hidden h-[70vh] flex flex-col">
-
-          <div className="flex justify-between items-center px-6 py-4 border-b border-gray-700 bg-gray-800 sticky top-0 z-10">
+        {/* Interview Interface */}
+        <div className="relative overflow-hidden border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-lg rounded-xl">
+          
+          {/* Header Bar */}
+          <div className="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 to-teal-600 flex items-center justify-center text-white font-bold text-xl shadow-lg">
-                AI
+              <div className="w-14 h-14 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-semibold text-sm">
+                  AI
+                </div>
               </div>
               <div>
-                <div className="text-md font-semibold text-gray-200">AI Interviewer</div>
-                <div className={`text-xs ${callActive ? 'text-green-400' : 'text-gray-400'} flex items-center gap-2`}>
-                  <span className={`w-2.5 h-2.5 rounded-full ${callActive ? (isSpeaking ? 'bg-green-400 animate-pulse' : 'bg-green-400') : 'bg-gray-500'}`} />
-                  {callActive ? (isSpeaking ? "Speaking..." : "Listening...") : callEnded ? "Interview Ended" : connecting ? "Connecting..." : "Idle"}
+                <div className="text-lg font-semibold text-gray-900 dark:text-white">AI Interviewer</div>
+                <div className={`text-sm flex items-center gap-2 transition-colors duration-300 ${
+                  callActive ? 'text-blue-600' : 'text-gray-500 dark:text-gray-400'
+                }`}>
+                  <div className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                    callActive 
+                      ? (isSpeaking ? 'bg-green-500 animate-pulse' : 'bg-blue-600') 
+                      : 'bg-gray-400'
+                  }`} />
+                  {callActive 
+                    ? (isSpeaking ? "Speaking..." : "Listening...") 
+                    : callEnded 
+                      ? "Interview Complete" 
+                      : connecting 
+                        ? "Connecting..." 
+                        : "Ready to Start"}
                 </div>
               </div>
             </div>
 
             <div className="flex items-center gap-4">
               <div className="text-right">
-                <div className="text-md font-semibold text-gray-200">{username || "You"}</div>
-                <div className="text-xs text-gray-400">{ username ? "Candidate" : "Guest"}</div>
+                <div className="text-lg font-semibold text-gray-900 dark:text-white">{username || "You"}</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  {username ? "Candidate" : "Guest"}
+                </div>
               </div>
-              <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-xl shadow-lg">
+              <div className="w-14 h-14 rounded-full bg-blue-600 flex items-center justify-center text-white font-semibold text-lg">
                 {firstLetter}
               </div>
             </div>
           </div>
 
-          <div ref={messageContainerRef} className="flex-1 overflow-y-auto p-6 space-y-5 bg-gray-850 custom-scrollbar">
+          {/* Messages Container */}
+          <div 
+            ref={messageContainerRef} 
+            className="h-[60vh] overflow-y-auto p-6 space-y-4 bg-gray-50 dark:bg-gray-800/50"
+          >
+            {/* Empty State */}
             {displayMessages.length === 0 && !callActive && !callEnded && !connecting && (
-              <div className="text-gray-400 text-center italic mt-10 text-lg flex flex-col items-center justify-center h-full">
-                <p>Ready to start?</p>
-                <p>Click "Start Interview" below.</p>
-              </div>
-            )}
-             {displayMessages.length === 0 && connecting && (
-              <div className="text-gray-400 text-center italic mt-10 text-lg flex flex-col items-center justify-center h-full">
-                <p>Connecting to the AI Interviewer...</p>
+              <div className="flex flex-col items-center justify-center h-full text-center">
+                <div className="w-20 h-20 bg-blue-100 dark:bg-blue-900/20 rounded-full flex items-center justify-center mb-6">
+                  <div className="w-12 h-12 bg-blue-200 dark:bg-blue-800/40 rounded-full flex items-center justify-center">
+                    <div className="w-6 h-6 bg-blue-600 rounded-full"></div>
+                  </div>
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Ready to Begin</h3>
+                <p className="text-gray-600 dark:text-gray-300">Click "Start Interview" to begin your AI-powered interview session</p>
               </div>
             )}
 
+            {/* Connecting State */}
+            {displayMessages.length === 0 && connecting && (
+              <div className="flex flex-col items-center justify-center h-full text-center">
+                <div className="w-20 h-20 bg-blue-100 dark:bg-blue-900/20 rounded-full flex items-center justify-center mb-6 animate-pulse">
+                  <div className="w-12 h-12 bg-blue-200 dark:bg-blue-800/40 rounded-full flex items-center justify-center animate-pulse">
+                    <div className="w-6 h-6 bg-blue-600 rounded-full animate-pulse"></div>
+                  </div>
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Connecting...</h3>
+                <p className="text-gray-600 dark:text-gray-300">Establishing connection with the AI interviewer</p>
+              </div>
+            )}
+
+            {/* Messages */}
             {displayMessages.map((msg, index) => {
               const displayContent = typeof msg.content === 'string' ? msg.content.replace("INTERVIEW_COMPLETE", "").trim() : "";
               if (displayContent === "") return null;
 
-
               return (
-                <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-slideInFromBottom`}>
-                  <div className={`max-w-[80%] px-5 py-3 rounded-2xl shadow-md ${
+                <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`max-w-[75%] px-4 py-3 rounded-lg ${
                     msg.role === 'user'
                       ? 'bg-blue-600 text-white rounded-br-sm'
                       : msg.role === 'assistant'
-                        ? 'bg-gray-700 text-gray-200 rounded-bl-sm'
-                        : 'bg-gray-600 text-gray-300 italic text-center text-sm'
+                        ? 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white rounded-bl-sm'
+                        : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 italic text-center text-sm'
                   }`}>
                     {(msg.role === 'assistant' || msg.role === 'user') && (
-                      <div className="text-xs font-semibold mb-1 opacity-80">
+                      <div className={`text-xs font-medium mb-2 ${
+                        msg.role === 'user' 
+                          ? 'text-blue-200' 
+                          : 'text-gray-500 dark:text-gray-400'
+                      }`}>
                         {msg.role === 'assistant' ? 'AI Interviewer' : (username || 'You')}
                       </div>
                     )}
-                    <p className="text-sm whitespace-pre-wrap break-words">{displayContent}</p>
+                    <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">{displayContent}</p>
                   </div>
                 </div>
               );
             })}
 
+            {/* Interview Complete State */}
             {callEnded && (
-              <div className="text-center text-green-400 italic mt-6 text-lg animate-fadeIn">
-                Interview complete. Generating feedback and redirecting to feedback page shortly...
+              <div className="flex flex-col items-center justify-center pt-8 text-center animate-scaleIn">
+                <div className="w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center mb-4">
+                  <div className="text-green-500 text-2xl">✓</div>
+                </div>
+                <h3 className="text-xl font-semibold text-green-600 mb-2">Interview Complete!</h3>
+                <p className="text-muted-foreground">
+                  Generating your personalized feedback. You'll be redirected shortly...
+                </p>
               </div>
             )}
           </div>
+
+          {/* Action Button */}
+          <div className="relative p-6 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-t border-gray-200 dark:border-gray-700">
+            <button
+              className={`w-full h-16 text-lg font-semibold rounded-lg transition-all duration-200 ${
+                callActive
+                  ? 'bg-red-600 hover:bg-red-700 text-white'
+                  : callEnded
+                    ? 'bg-green-600 text-white cursor-not-allowed'
+                    : 'bg-blue-600 hover:bg-blue-700 text-white'
+              } disabled:opacity-50 disabled:cursor-not-allowed`}
+              onClick={toggleCall}
+              disabled={connecting || (callEnded && !callActive)}
+            >
+              {connecting && (
+                <div className="absolute inset-0 bg-white/20 animate-pulse rounded-2xl"></div>
+              )}
+              <span className="relative z-10 flex items-center justify-center gap-3">
+                {callActive ? (
+                  <>
+                    <div className="w-3 h-3 bg-current rounded-sm"></div>
+                    End Interview
+                  </>
+                ) : connecting ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                    Connecting...
+                  </>
+                ) : callEnded ? (
+                  <>
+                    ✓ Interview Complete
+                  </>
+                ) : (
+                  <>
+                    <div className="w-0 h-0 border-l-[6px] border-l-current border-y-[4px] border-y-transparent"></div>
+                    Start Interview
+                  </>
+                )}
+              </span>
+            </button>
+          </div>
         </div>
 
-        <div className="mt-12 flex justify-center">
-          <button
-            className={`w-60 py-4 text-lg font-bold rounded-full transition-all duration-300 ease-in-out transform hover:scale-105 relative overflow-hidden ${
-              callActive
-                ? 'bg-red-600 text-white hover:bg-red-700 shadow-lg shadow-red-600/40'
-                : callEnded
-                  ? 'bg-purple-600 text-white hover:bg-purple-700 shadow-lg shadow-purple-600/40 cursor-not-allowed'
-                  : 'bg-green-600 text-white hover:-green-700 shadow-lg shadow-green-600/40'
-            } disabled:opacity-50 disabled:cursor-not-allowed`}
-            onClick={toggleCall}
-            disabled={connecting || (callEnded && !callActive)}
-          >
-            {connecting && (
-              <span className="absolute inset-0 bg-white opacity-20 animate-pulse rounded-full"></span>
-            )}
-            <span className="relative z-10">
-              {callActive
-                ? 'End Interview'
-                : connecting
-                  ? 'Connecting...'
-                  : callEnded
-                    ? 'Interview Ended'
-                    : 'Start Interview'}
-            </span>
-          </button>
-        </div>
       </div>
     </div>
   );
