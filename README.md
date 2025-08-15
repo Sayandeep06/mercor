@@ -1,26 +1,29 @@
 
-# Intervue AI
+# InterVue - AI-Powered Interview Platform
 
-Intervue AI is a real-time AI-powered interview platform built with **Next.js**, **Vapi**, **Vercel AI SDK**, and integrated with multiple AI services including OpenAI, Google Generative AI, AssemblyAI, Deepgram, and ElevenLabs.
+InterVue is a modern AI-powered interview platform built with **Next.js**, **Vapi**, and integrated with multiple AI services including OpenAI, Google Generative AI, Deepgram, and ElevenLabs.
 
-It simulates an AI interviewer that talks to users in real-time and generates insights and transcripts from the conversation.
+The platform enables companies to conduct intelligent interviews with AI-generated questions, real-time voice interactions, and comprehensive candidate analysis.
 
-## 🧠 Features
+## ✨ Features
 
-- Real-time AI interviewer powered by [Vapi](https://www.vapi.ai)
-- Uses multiple AI APIs: OpenAI, Google Gemini, Deepgram, ElevenLabs
-- Transcription and voice synthesis
-- Google authentication with NextAuth
-- Full-stack application using PostgreSQL (Neon)
+- **AI Question Generation**: Create role-specific interview questions automatically
+- **Real-time Voice Interviews**: Powered by [Vapi](https://www.vapi.ai) for natural conversations
+- **Smart Analytics**: Detailed candidate performance analysis and feedback
+- **Professional UI**: Clean, modern interface with dark/light mode support
+- **Multiple AI Integrations**: OpenAI, Google Gemini, Deepgram, ElevenLabs
+- **Authentication**: Secure Google OAuth with NextAuth
+- **Full-Stack Solution**: PostgreSQL database with modern web technologies
 
 ---
 
 ## 🛠 Tech Stack
 
-- **Frontend:** Next.js, Tailwind CSS, Vercel AI SDK
-- **Backend:** Node.js, PostgreSQL (Neon DB), Vapi, AI APIs
-- **Auth:** NextAuth with Google Provider
-- **Hosting:** Vercel
+- **Frontend:** Next.js 15, TypeScript, Tailwind CSS, Radix UI
+- **Backend:** Node.js, PostgreSQL (Neon DB), Prisma ORM
+- **AI Services:** Vapi, OpenAI, Google Gemini, Deepgram, ElevenLabs  
+- **Auth:** NextAuth.js with Google OAuth
+- **Deployment:** Vercel
 
 ---
 
@@ -33,44 +36,50 @@ git clone https://github.com/Sayandeep06/mercor
 cd mercor
 ```
 
+### 2. Install Dependencies
 
-**2\. Install Dependencies**
-
-```
+```bash
 npm install
 ```
 
-### **3\. Setup Environment Variables**
+### 3. Setup Environment Variables
 
-Create a .env file in the root of the project and add the following variables. Refer to .env.example for structure down below.
+Create a `.env.local` file in the root directory and add the required environment variables (see Environment Variables section below).
 
+### 4. Database Setup
 
-### **4\. Set Up a Vapi Workflow** 
+Set up your PostgreSQL database (recommended: [Neon](https://neon.tech)) and run the database migrations:
+
+```bash
+npx prisma migrate dev
+npx prisma generate
+```
+
+### 5. Configure Vapi Integration
+
 ![vapi workflow](public/vapi.jpeg)
 
--  This is to collect data before creating the interview 
-
--   Go to [Vapi.ai](https://www.vapi.ai)
-
--   Create a new **workflow** that defines your create interview logic
-
--   Copy the **workflow ID** and paste it into NEXT_PUBLIC_VAPI_WORKFLOW_ID
+- Go to [Vapi.ai](https://www.vapi.ai) and create an account
+- Set up your AI voice assistant configuration  
+- Copy your API keys and add them to your environment variables
 
 * * * * *
 
-**🧪 Development**
-------------------
+## 🚀 Development
 
-```
+Start the development server:
+
+```bash
 npm run dev
 ```
 
-* * * * *
+Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.
 
+---
 
-**📄 Environment variables**
---------------
+## 📄 Environment Variables
 
+Create a `.env.local` file with the following variables:
 
 ```env
 # PostgreSQL Database URL
@@ -97,8 +106,28 @@ ELEVEN_API_KEY=your_elevenlabs_api_key
 OPENAI_API_KEY=your_openai_api_key
 
 
-# Deepgram API
+# Deepgram API  
 DEEPGRAM_API_KEY=your_deepgram_api_key
 ```
 
-* * * * *
+---
+
+## 🎯 How It Works
+
+1. **Create Interview**: Define job role, experience level, and required skills
+2. **AI Generation**: System generates targeted interview questions using Google Gemini
+3. **Conduct Interview**: Real-time voice conversation powered by Vapi AI
+4. **Get Insights**: Comprehensive analysis and feedback on candidate performance
+
+---
+
+## 👤 Author
+
+**Sayandeep Dey**
+- GitHub: [@Sayandeep06](https://github.com/Sayandeep06)
+- LinkedIn: [Sayandeep Dey](https://www.linkedin.com/in/sayandeep-dey-2a0aba227/)
+- Twitter: [@gitpushsayan](https://x.com/gitpushsayan)
+- Email: deysayandeepdev@gmail.com
+
+---
+

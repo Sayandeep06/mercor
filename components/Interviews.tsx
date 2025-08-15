@@ -92,7 +92,7 @@ const Interviews = () => {
         <FileX className="w-12 h-12 text-muted-foreground mb-4" />
         <h3 className="text-xl font-semibold mb-2">No Interviews Yet</h3>
         <p className="text-muted-foreground mb-6">Create your first AI-powered interview to get started</p>
-        <Button onClick={() => router.push('/generate-interview')} className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90">
+        <Button onClick={() => router.push('/generate-interview')} className="bg-blue-600 hover:bg-blue-700 text-white font-medium">
           <Play className="w-4 h-4 mr-2" />
           Create Interview
         </Button>
@@ -166,9 +166,9 @@ const Interviews = () => {
             {/* Action Button */}
             <Button
               onClick={() => router.push(`/interview/${interview.id}`)}
-              className="w-full mt-6 group-hover:bg-gradient-to-r group-hover:from-primary group-hover:to-accent transition-all duration-300 shadow-lg hover:shadow-primary/25"
+              className="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors duration-200"
             >
-              <Play size={16} className="mr-2 group-hover:scale-110 transition-transform duration-300" />
+              <Play size={16} className="mr-2" />
               Start Interview
             </Button>
           </div>

@@ -1,72 +1,69 @@
 "use client";
 
 import Link from "next/link";
-import { Bot, Github, Twitter, Linkedin, Mail, Heart } from "lucide-react";
+import { Github, Twitter, Linkedin, Mail } from "lucide-react";
 import { Button } from "./ui/button";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="relative bg-background/50 border-t border-border/50 mt-20">
-      {/* Gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background/0 to-background/90 pointer-events-none"></div>
-      
-      <div className="relative container mx-auto px-6 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
+    <footer className="bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-16">
+      <div className="container mx-auto px-6 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           
           {/* Brand Section */}
           <div className="col-span-1 md:col-span-2">
-            <Link href="/" className="flex items-center gap-3 mb-6 group">
-              <div className="relative">
-                <div className="absolute inset-0 bg-primary/20 blur-lg rounded-full transition-all duration-300 group-hover:bg-primary/30"></div>
-                <span className="relative text-primary p-2 bg-primary/10 rounded-lg"><Bot size={28} /></span>
+            <Link href="/" className="flex items-center mb-6">
+              <div className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
+                Inter<span className="text-blue-600">Vue</span>
               </div>
-              <span className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                InterVue<span className="text-primary">.ai</span>
-              </span>
             </Link>
             
-            <p className="text-muted-foreground text-lg leading-relaxed mb-6 max-w-md">
-              Revolutionizing the interview process with AI-powered solutions. 
-              Create, conduct, and analyze interviews like never before.
+            <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-6 max-w-md">
+              AI-powered interview platform for smarter hiring decisions.
             </p>
             
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="icon" className="hover:bg-primary/10 transition-all duration-300">
-                <Github size={20} />
-              </Button>
-              <Button variant="ghost" size="icon" className="hover:bg-primary/10 transition-all duration-300">
-                <Twitter size={20} />
-              </Button>
-              <Button variant="ghost" size="icon" className="hover:bg-primary/10 transition-all duration-300">
-                <Linkedin size={20} />
-              </Button>
-              <Button variant="ghost" size="icon" className="hover:bg-primary/10 transition-all duration-300">
-                <Mail size={20} />
-              </Button>
+            <div className="flex items-center gap-3">
+              <a href="https://github.com/Sayandeep06/mercor" target="_blank" rel="noopener noreferrer">
+                <Button variant="ghost" size="icon" className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-700">
+                  <Github size={18} />
+                </Button>
+              </a>
+              <a href="https://x.com/gitpushsayan" target="_blank" rel="noopener noreferrer">
+                <Button variant="ghost" size="icon" className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-700">
+                  <Twitter size={18} />
+                </Button>
+              </a>
+              <a href="https://www.linkedin.com/in/sayandeep-dey-2a0aba227/" target="_blank" rel="noopener noreferrer">
+                <Button variant="ghost" size="icon" className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-700">
+                  <Linkedin size={18} />
+                </Button>
+              </a>
+              <a href="mailto:deysayandeepdev@gmail.com">
+                <Button variant="ghost" size="icon" className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-700">
+                  <Mail size={18} />
+                </Button>
+              </a>
             </div>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h3 className="font-semibold text-foreground mb-6 text-lg">Quick Links</h3>
-            <ul className="space-y-4">
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Quick Links</h3>
+            <ul className="space-y-3">
               <li>
-                <Link href="/#interviews" className="text-muted-foreground hover:text-primary transition-colors duration-300 flex items-center gap-2 group">
-                  <span className="w-0 group-hover:w-2 h-px bg-primary transition-all duration-300"></span>
+                <Link href="/#interviews" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">
                   My Interviews
                 </Link>
               </li>
               <li>
-                <Link href="/generate-interview" className="text-muted-foreground hover:text-primary transition-colors duration-300 flex items-center gap-2 group">
-                  <span className="w-0 group-hover:w-2 h-px bg-primary transition-all duration-300"></span>
+                <Link href="/generate-interview" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">
                   Create Interview
                 </Link>
               </li>
               <li>
-                <Link href="/feedback" className="text-muted-foreground hover:text-primary transition-colors duration-300 flex items-center gap-2 group">
-                  <span className="w-0 group-hover:w-2 h-px bg-primary transition-all duration-300"></span>
+                <Link href="/feedback" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">
                   Feedback
                 </Link>
               </li>
@@ -75,29 +72,25 @@ const Footer = () => {
 
           {/* Support */}
           <div>
-            <h3 className="font-semibold text-foreground mb-6 text-lg">Support</h3>
-            <ul className="space-y-4">
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Support</h3>
+            <ul className="space-y-3">
               <li>
-                <Link href="#" className="text-muted-foreground hover:text-primary transition-colors duration-300 flex items-center gap-2 group">
-                  <span className="w-0 group-hover:w-2 h-px bg-primary transition-all duration-300"></span>
+                <Link href="#" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">
                   Help Center
                 </Link>
               </li>
               <li>
-                <Link href="#" className="text-muted-foreground hover:text-primary transition-colors duration-300 flex items-center gap-2 group">
-                  <span className="w-0 group-hover:w-2 h-px bg-primary transition-all duration-300"></span>
+                <Link href="#" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">
                   Documentation
                 </Link>
               </li>
               <li>
-                <Link href="#" className="text-muted-foreground hover:text-primary transition-colors duration-300 flex items-center gap-2 group">
-                  <span className="w-0 group-hover:w-2 h-px bg-primary transition-all duration-300"></span>
+                <Link href="#" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">
                   Contact Us
                 </Link>
               </li>
               <li>
-                <Link href="#" className="text-muted-foreground hover:text-primary transition-colors duration-300 flex items-center gap-2 group">
-                  <span className="w-0 group-hover:w-2 h-px bg-primary transition-all duration-300"></span>
+                <Link href="#" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">
                   Privacy Policy
                 </Link>
               </li>
@@ -106,24 +99,19 @@ const Footer = () => {
         </div>
 
         {/* Bottom Section */}
-        <div className="border-t border-border/50 mt-16 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <span>© {currentYear} InterVue.ai. Made with</span>
-            <Heart size={16} className="text-red-500 fill-current animate-pulse" />
-            <span>for better interviews.</span>
+        <div className="border-t border-gray-200 dark:border-gray-700 mt-8 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300 text-sm">
+            <span>© {currentYear} InterVue. All rights reserved.</span>
           </div>
           
-          <div className="flex items-center gap-6 text-sm text-muted-foreground">
-            <Link href="#" className="hover:text-primary transition-colors duration-300">Terms of Service</Link>
-            <Link href="#" className="hover:text-primary transition-colors duration-300">Privacy Policy</Link>
-            <Link href="#" className="hover:text-primary transition-colors duration-300">Cookie Policy</Link>
+          <div className="flex items-center gap-6 text-sm text-gray-600 dark:text-gray-300">
+            <Link href="#" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">Terms</Link>
+            <Link href="#" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">Privacy</Link>
+            <Link href="#" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">Cookies</Link>
           </div>
         </div>
       </div>
 
-      {/* Decorative elements */}
-      <div className="absolute top-0 left-1/4 w-64 h-64 bg-primary/5 rounded-full blur-3xl pointer-events-none"></div>
-      <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-accent/5 rounded-full blur-3xl pointer-events-none"></div>
     </footer>
   );
 };

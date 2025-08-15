@@ -102,13 +102,13 @@ const FeedbackPage = () => {
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden">
+    <div className="relative min-h-screen overflow-hidden pt-20">
       {/* Background Elements */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5"></div>
       <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
       <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-accent/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
       
-      <div className="relative container mx-auto px-6 py-16 max-w-6xl">
+      <div className="relative container mx-auto px-6 py-12 max-w-6xl">
         
         {/* Header */}
         <div className="text-center mb-16">

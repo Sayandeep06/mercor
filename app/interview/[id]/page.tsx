@@ -343,13 +343,13 @@ const InterviewPage = () => {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden">
+    <div className="relative min-h-screen overflow-hidden pt-20">
       {/* Background Elements */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5"></div>
       <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
       <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-accent/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
       
-      <div className="relative container mx-auto px-6 py-16 max-w-5xl">
+      <div className="relative container mx-auto px-6 py-12 max-w-5xl">
 
         {/* Header */}
         <div className="text-center mb-12">
@@ -373,27 +373,25 @@ const InterviewPage = () => {
         </div>
 
         {/* Interview Interface */}
-        <div className="relative overflow-hidden border border-border/50 bg-card/50 backdrop-blur-lg shadow-2xl rounded-3xl">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent"></div>
+        <div className="relative overflow-hidden border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-lg rounded-xl">
           
           {/* Header Bar */}
-          <div className="relative flex justify-between items-center p-6 border-b border-border/50 bg-card/80 backdrop-blur-sm">
+          <div className="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
             <div className="flex items-center gap-4">
-              <div className="relative">
-                <div className="absolute inset-0 bg-primary/20 blur-lg rounded-full animate-pulse"></div>
-                <div className="relative w-14 h-14 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-primary-foreground font-bold text-lg shadow-lg">
+              <div className="w-14 h-14 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-semibold text-sm">
                   AI
                 </div>
               </div>
               <div>
-                <div className="text-lg font-semibold text-foreground">AI Interviewer</div>
+                <div className="text-lg font-semibold text-gray-900 dark:text-white">AI Interviewer</div>
                 <div className={`text-sm flex items-center gap-2 transition-colors duration-300 ${
-                  callActive ? 'text-primary' : 'text-muted-foreground'
+                  callActive ? 'text-blue-600' : 'text-gray-500 dark:text-gray-400'
                 }`}>
                   <div className={`w-3 h-3 rounded-full transition-all duration-300 ${
                     callActive 
-                      ? (isSpeaking ? 'bg-accent animate-pulse' : 'bg-primary') 
-                      : 'bg-muted-foreground/50'
+                      ? (isSpeaking ? 'bg-green-500 animate-pulse' : 'bg-blue-600') 
+                      : 'bg-gray-400'
                   }`} />
                   {callActive 
                     ? (isSpeaking ? "Speaking..." : "Listening...") 
@@ -408,12 +406,12 @@ const InterviewPage = () => {
 
             <div className="flex items-center gap-4">
               <div className="text-right">
-                <div className="text-lg font-semibold text-foreground">{username || "You"}</div>
-                <div className="text-sm text-muted-foreground">
+                <div className="text-lg font-semibold text-gray-900 dark:text-white">{username || "You"}</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">
                   {username ? "Candidate" : "Guest"}
                 </div>
               </div>
-              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-accent to-primary flex items-center justify-center text-accent-foreground font-bold text-lg shadow-lg">
+              <div className="w-14 h-14 rounded-full bg-blue-600 flex items-center justify-center text-white font-semibold text-lg">
                 {firstLetter}
               </div>
             </div>
@@ -422,31 +420,31 @@ const InterviewPage = () => {
           {/* Messages Container */}
           <div 
             ref={messageContainerRef} 
-            className="relative h-[60vh] overflow-y-auto p-6 space-y-4 bg-background/20 backdrop-blur-sm custom-scrollbar"
+            className="h-[60vh] overflow-y-auto p-6 space-y-4 bg-gray-50 dark:bg-gray-800/50"
           >
             {/* Empty State */}
             {displayMessages.length === 0 && !callActive && !callEnded && !connecting && (
               <div className="flex flex-col items-center justify-center h-full text-center">
-                <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mb-6">
-                  <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
-                    <div className="w-6 h-6 bg-primary rounded-full"></div>
+                <div className="w-20 h-20 bg-blue-100 dark:bg-blue-900/20 rounded-full flex items-center justify-center mb-6">
+                  <div className="w-12 h-12 bg-blue-200 dark:bg-blue-800/40 rounded-full flex items-center justify-center">
+                    <div className="w-6 h-6 bg-blue-600 rounded-full"></div>
                   </div>
                 </div>
-                <h3 className="text-xl font-semibold text-foreground mb-2">Ready to Begin</h3>
-                <p className="text-muted-foreground">Click "Start Interview" to begin your AI-powered interview session</p>
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Ready to Begin</h3>
+                <p className="text-gray-600 dark:text-gray-300">Click "Start Interview" to begin your AI-powered interview session</p>
               </div>
             )}
 
             {/* Connecting State */}
             {displayMessages.length === 0 && connecting && (
               <div className="flex flex-col items-center justify-center h-full text-center">
-                <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mb-6 animate-pulse">
-                  <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center animate-pulse">
-                    <div className="w-6 h-6 bg-primary rounded-full animate-pulse"></div>
+                <div className="w-20 h-20 bg-blue-100 dark:bg-blue-900/20 rounded-full flex items-center justify-center mb-6 animate-pulse">
+                  <div className="w-12 h-12 bg-blue-200 dark:bg-blue-800/40 rounded-full flex items-center justify-center animate-pulse">
+                    <div className="w-6 h-6 bg-blue-600 rounded-full animate-pulse"></div>
                   </div>
                 </div>
-                <h3 className="text-xl font-semibold text-foreground mb-2">Connecting...</h3>
-                <p className="text-muted-foreground">Establishing connection with the AI interviewer</p>
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Connecting...</h3>
+                <p className="text-gray-600 dark:text-gray-300">Establishing connection with the AI interviewer</p>
               </div>
             )}
 
@@ -456,16 +454,20 @@ const InterviewPage = () => {
               if (displayContent === "") return null;
 
               return (
-                <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-slideInUp animation-delay-100`}>
-                  <div className={`max-w-[75%] px-4 py-3 rounded-2xl shadow-lg transition-all duration-300 hover:shadow-xl ${
+                <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`max-w-[75%] px-4 py-3 rounded-lg ${
                     msg.role === 'user'
-                      ? 'bg-gradient-to-r from-primary to-accent text-primary-foreground rounded-br-md'
+                      ? 'bg-blue-600 text-white rounded-br-sm'
                       : msg.role === 'assistant'
-                        ? 'bg-card border border-border/50 text-card-foreground rounded-bl-md'
-                        : 'bg-muted/50 text-muted-foreground italic text-center text-sm'
+                        ? 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white rounded-bl-sm'
+                        : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 italic text-center text-sm'
                   }`}>
                     {(msg.role === 'assistant' || msg.role === 'user') && (
-                      <div className="text-xs font-medium mb-2 opacity-70">
+                      <div className={`text-xs font-medium mb-2 ${
+                        msg.role === 'user' 
+                          ? 'text-blue-200' 
+                          : 'text-gray-500 dark:text-gray-400'
+                      }`}>
                         {msg.role === 'assistant' ? 'AI Interviewer' : (username || 'You')}
                       </div>
                     )}
@@ -490,15 +492,15 @@ const InterviewPage = () => {
           </div>
 
           {/* Action Button */}
-          <div className="relative p-6 bg-card/80 backdrop-blur-sm border-t border-border/50">
+          <div className="relative p-6 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-t border-gray-200 dark:border-gray-700">
             <button
-              className={`w-full h-16 text-lg font-semibold rounded-2xl transition-all duration-300 relative overflow-hidden shadow-lg ${
+              className={`w-full h-16 text-lg font-semibold rounded-lg transition-all duration-200 ${
                 callActive
-                  ? 'bg-destructive hover:bg-destructive/90 text-destructive-foreground shadow-destructive/25'
+                  ? 'bg-red-600 hover:bg-red-700 text-white'
                   : callEnded
-                    ? 'bg-green-600 hover:bg-green-700 text-white cursor-not-allowed shadow-green-600/25'
-                    : 'bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground shadow-primary/25'
-              } disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] hover:shadow-2xl`}
+                    ? 'bg-green-600 text-white cursor-not-allowed'
+                    : 'bg-blue-600 hover:bg-blue-700 text-white'
+              } disabled:opacity-50 disabled:cursor-not-allowed`}
               onClick={toggleCall}
               disabled={connecting || (callEnded && !callActive)}
             >
