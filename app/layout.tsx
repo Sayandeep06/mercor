@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Mona_Sans } from "next/font/google";
 import { Providers } from "@/providers";
 import Navbar from "@/components/NavBar";
+import Footer from "@/components/Footer";
 import { ThemeProvider } from "@/components/theme-provider"
 
 import "./globals.css";
@@ -13,8 +14,8 @@ const monaSans = Mona_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Intervue Ai",
-  description: "Talk to your AI Interviewer",
+  title: "InterVue.ai - AI-Powered Interview Platform",
+  description: "Revolutionize your interview process with AI. Create, conduct, and analyze interviews with intelligent automation and insights.",
 };
 
 export default function RootLayout({
@@ -33,7 +34,10 @@ export default function RootLayout({
               disableTransitionOnChange
             >
               <Navbar/>
-              {children}
+              <main className="min-h-screen pt-20">
+                {children}
+              </main>
+              <Footer/>
               <Toaster />
           </ThemeProvider>
 
