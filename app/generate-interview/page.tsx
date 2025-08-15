@@ -2,140 +2,65 @@
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { vapi } from "@/lib/vapi";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 
 const GenerateInterviewPage = () => {
-  const [callActive, setCallActive] = useState(false);
-  const [connecting, setConnecting] = useState(false);
-  const [isSpeaking, setIsSpeaking] = useState(false);
-  const [messages, setMessages] = useState<any[]>([]);
-  const [userId, setUserId] = useState("")
-  const [callEnded, setCallEnded] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [created, setCreated] = useState(false);
+  const [jobRole, setJobRole] = useState("");
+  const [level, setLevel] = useState("");
+  const [skills, setSkills] = useState("");
 
-  const { data: session } = useSession();
-  const user = session?.user;
-  const username = session?.user?.name || "Guest";
-  const firstLetter = user && username ? username.trim().charAt(0).toUpperCase() : (user ? 'C' : 'G');
+  const { data: session, status } = useSession();
   const router = useRouter();
-  if (!session) {
-    router.push("/api/auth/signin");
-  }
-  const messageContainerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(()=>{
-    const getuser = async()=>{
-      const res = await axios.get('/api/user');
-      const userId = res.data.userId;
-      setUserId(userId);
+  
+  useEffect(() => {
+    if (session === null) {
+      router.push("/api/auth/signin");
     }
-    getuser();
-  },[session])
+  }, [session, router]);
 
   useEffect(() => {
-    const originalError = console.error;
-    console.error = function (msg, ...args) {
-      if (
-        msg &&
-        (msg.includes("Meeting has ended") ||
-          (args[0] && args[0].toString().includes("Meeting has ended")))
-      ) {
-        return;
-      }
-      return originalError.call(console, msg, ...args);
-    };
-    return () => {
-      console.error = originalError;
-    };
-  }, []);
-
-  useEffect(() => {
-    if (messageContainerRef.current) {
-      messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
-    }
-  }, [messages]);
-
-  useEffect(() => {
-    if (callEnded) {
+    if (created) {
       const redirectTimer = setTimeout(() => {
         router.push("/#interviews");
-      }, 1500);
+      }, 2000);
       return () => clearTimeout(redirectTimer);
     }
-  }, [callEnded, router]);
+  }, [created, router]);
 
-  useEffect(() => {
-    const handleCallStart = () => {
-      setConnecting(false);
-      setCallActive(true);
-      setCallEnded(false);
-    };
+  if (status === "loading") {
+    return null;
+  }
 
-    const handleCallEnd = () => {
-      setCallActive(false);
-      setConnecting(false);
-      setIsSpeaking(false);
-      setCallEnded(true);
-    };
+  const createInterview = async () => {
+    if (!jobRole.trim() || !level || !skills.trim()) {
+      alert("Please fill in all interview details.");
+      return;
+    }
 
-    const handleSpeechStart = () => setIsSpeaking(true);
-    const handleSpeechEnd = () => setIsSpeaking(false);
+    try {
+      setCreating(true);
+      
+      const response = await axios.post('/api/vapi/generate', {
+        jobrole: jobRole,
+        level: level,
+        skills: skills
+      });
 
-    const handleMessage = (message: any) => {
-      if (message.type === "transcript" && message.transcriptType === "final") {
-        const newMessage = { content: message.transcript, role: message.role };
-        setMessages((prev) => [...prev, newMessage]);
+      if (response.data.success) {
+        console.log("Interview created:", response.data.interview);
+        setCreated(true);
+      } else {
+        throw new Error("Failed to create interview");
       }
-    };
-
-    const handleError = (error: any) => {
-      console.log("Vapi Error", error);
-      setConnecting(false);
-      setCallActive(false);
-    };
-
-    vapi
-      .on("call-start", handleCallStart)
-      .on("call-end", handleCallEnd)
-      .on("speech-start", handleSpeechStart)
-      .on("speech-end", handleSpeechEnd)
-      .on("message", handleMessage)
-      .on("error", handleError);
-
-    return () => {
-      vapi
-        .off("call-start", handleCallStart)
-        .off("call-end", handleCallEnd)
-        .off("speech-start", handleSpeechStart)
-        .off("speech-end", handleSpeechEnd)
-        .off("message", handleMessage)
-        .off("error", handleError);
-    };
-  }, []);
-
-  const toggleCall = async () => {
-    if (callActive) {
-      vapi.stop();
-    } else {
-      try {
-        setConnecting(true);
-        setMessages([]);
-        setCallEnded(false);
-
-
-        await vapi.start(process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID!, {
-            variableValues: {
-              username: username,
-              userId: userId
-            }
-        });
-      } catch (error) {
-        console.log("Failed to start call", error);
-        setConnecting(false);
-      }
+    } catch (error: any) {
+      console.error("Failed to create interview:", error);
+      alert("Failed to create interview. Please try again.");
+      setCreating(false);
     }
   };
 
@@ -148,112 +73,85 @@ const GenerateInterviewPage = () => {
             Interview<span className="text-white">AI</span>
           </h1>
           <p className="text-muted-foreground mt-2 text-lg">
-            Get on a quick call and generate the right interview for you.
+            Fill in your details to generate a custom interview.
           </p>
         </div>
 
-        <Card className="bg-card/80 backdrop-blur-md border border-border overflow-hidden h-[60vh] flex flex-col">
-
-          <div className="flex justify-between items-center p-4 border-b border-border bg-card">
-            <div className="flex items-center gap-3">
-            <div className="relative w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center overflow-hidden">
-                <span className="text-xl text-muted-foreground">AI</span>
-            </div>
-            <div>
-                <div className="font-semibold text-sm text-foreground">Interviewer</div>
-                <div className={`text-xs text-muted-foreground flex items-center gap-1 ${callActive ? 'text-primary' : ''}`}>
-                <div className={`w-2 h-2 rounded-full ${callActive ? (isSpeaking ? 'bg-primary animate-pulse' : 'bg-green-500') : 'bg-gray-500'}`} />
-                {callActive
-                    ? (isSpeaking ? "AI Speaking..." : "Listening...")
-                    : callEnded
-                    ? "Interview Ended"
-                    : (connecting ? "Connecting..." : "Ready")}
-                </div>
-            </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-               <div>
-                  <div className="font-semibold text-sm text-foreground text-right">You</div>
-                  <div className="text-xs text-muted-foreground text-right">
-                    {user ? username.trim() || "Candidate" : "Guest"}
-                  </div>
-               </div>
-               <div className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center overflow-hidden">
-                     <span className="text-xl text-muted-foreground">
-                        {firstLetter}
-                     </span>
-               </div>
-            </div>
-          </div>
-
-          <div
-            ref={messageContainerRef}
-            className="flex-1 p-4 overflow-y-auto custom-scrollbar"
-          >
+        {!created && (
+          <Card className="bg-card/80 backdrop-blur-md border border-border p-6 mb-6">
+            <h2 className="text-xl font-semibold mb-4">Interview Details</h2>
             <div className="space-y-4">
-              {messages.length === 0 && !callActive && !callEnded && (
-                 <div className="text-center text-muted-foreground italic mt-10">
-                    Click "Start Call" to begin.
-                 </div>
-              )}
-
-              {messages.map((msg, index) => (
-                <div
-                  key={index}
-                  className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} message-item animate-fadeIn`}
+              <div>
+                <label className="block text-sm font-medium mb-2">Job Role</label>
+                <input
+                  type="text"
+                  value={jobRole}
+                  onChange={(e) => setJobRole(e.target.value)}
+                  placeholder="e.g., Software Engineer, Product Manager"
+                  className="w-full p-2 rounded-md border border-border bg-background text-foreground"
+                  disabled={creating}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Experience Level</label>
+                <select
+                  value={level}
+                  onChange={(e) => setLevel(e.target.value)}
+                  className="w-full p-2 rounded-md border border-border bg-background text-foreground"
+                  disabled={creating}
                 >
-                  <div
-                    className={`max-w-[80%] p-3 rounded-lg ${
-                      msg.role === "user"
-                        ? "bg-primary text-primary-foreground rounded-br-none"
-                        : msg.role === "assistant"
-                          ? "bg-muted text-muted-foreground rounded-bl-none"
-                          : "bg-gray-500/10 text-gray-400 italic text-center"
-                    }`}
-                  >
-                     {msg.role !== 'system' && (
-                       <div className="font-semibold text-xs mb-1">
-                         {msg.role === "assistant" ? "Interviewer" : "You"}:
-                       </div>
-                     )}
-                    <p className="text-sm break-words">{msg.content}</p>
-                  </div>
-                </div>
-              ))}
-
-              {callEnded && (
-                <div className="text-center text-primary italic mt-4 animate-fadeIn">
-                  Interview completed! Click below to see the summary/feedback.
-                </div>
-              )}
+                  <option value="">Select level</option>
+                  <option value="Junior">Junior</option>
+                  <option value="Mid-level">Mid-level</option>
+                  <option value="Senior">Senior</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Skills/Technologies</label>
+                <input
+                  type="text"
+                  value={skills}
+                  onChange={(e) => setSkills(e.target.value)}
+                  placeholder="e.g., React, Node.js, Python, AWS"
+                  className="w-full p-2 rounded-md border border-border bg-background text-foreground"
+                  disabled={creating}
+                />
+              </div>
             </div>
-          </div>
-        </Card>
+          </Card>
+        )}
 
-        <div className="w-full flex justify-center mt-8">
+        {created && (
+          <Card className="bg-card/80 backdrop-blur-md border border-border p-6 mb-6">
+            <div className="text-center">
+              <div className="text-green-500 text-6xl mb-4">✓</div>
+              <h2 className="text-2xl font-semibold mb-2">Interview Created Successfully!</h2>
+              <p className="text-muted-foreground">
+                Your custom interview has been generated and saved. You'll be redirected to your interviews page shortly.
+              </p>
+            </div>
+          </Card>
+        )}
+
+        <div className="w-full flex justify-center">
           <Button
             className={`w-48 py-3 text-lg rounded-full relative transition-colors ${
-              callActive
-                ? "bg-destructive hover:bg-destructive/90 text-destructive-foreground"
-                : callEnded
-                  ? "bg-green-600 hover:bg-green-700 text-white"
-                  : "bg-primary hover:bg-primary/90 text-primary-foreground"
+              created
+                ? "bg-green-600 hover:bg-green-700 text-white"
+                : "bg-primary hover:bg-primary/90 text-primary-foreground"
             }`}
-            onClick={toggleCall}
-            disabled={connecting}
+            onClick={createInterview}
+            disabled={creating || created || (!jobRole.trim() || !level || !skills.trim())}
           >
-            {connecting && (
+            {creating && (
               <span className="absolute inset-0 rounded-full animate-ping bg-primary/50 opacity-75"></span>
             )}
             <span className="relative z-10">
-              {callActive
-                ? "End Interview"
-                : connecting
-                  ? "Connecting..."
-                  : callEnded
-                    ? "See Summary"
-                    : "Start Call"}
+              {creating
+                ? "Creating Interview..."
+                : created
+                  ? "Interview Created!"
+                  : "Create Interview"}
             </span>
           </Button>
         </div>
